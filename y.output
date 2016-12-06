@@ -2142,6 +2142,7 @@ State 95
     LE      shift, and go to state 57
     GT      shift, and go to state 58
     GE      shift, and go to state 59
+    AND     shift, and go to state 60
 
     $default  reduce using rule 53 (ifExp)
 
@@ -2173,6 +2174,7 @@ State 96
     GT      shift, and go to state 58
     GE      shift, and go to state 59
     AND     shift, and go to state 60
+    OR      shift, and go to state 61
 
     $default  reduce using rule 54 (ifExp)
 

@@ -377,13 +377,13 @@ Tr_exp Tr_ifExp(Tr_exp test, Tr_exp then, Tr_exp elsee) {
         else 
             elseeStm = (elsee->kind == Tr_nx) ? elsee->u.nx : elsee->u.cx.stm;
 
-        result = Tr_Ex(T_Eseq(cond.stm, 
-                             T_Eseq(T_Label(t), 
-                                   T_Eseq(thenStm,
-                                         T_Eseq(joinJump, 
-                                               T_Eseq(T_Label(f),
-                                                     T_Eseq(elseeStm, 
-                                                           T_Eseq(joinJump, T_Label(join))))))))); 
+        result = Tr_Nx(T_Seq(cond.stm, 
+                             T_Seq(T_Label(t), 
+                                   T_Seq(thenStm,
+                                         T_Seq(joinJump, 
+                                               T_Seq(T_Label(f),
+                                                     T_Seq(elseeStm, 
+                                                           T_Seq(joinJump, T_Label(join))))))))); 
     }
     return result;
 }

@@ -51,7 +51,7 @@ static A_exp transform(A_exp forExp) {
 struct expty transVar(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_var v) {
     switch (v->kind) {
         case A_simpleVar: {
-            // printf("%s\n", S_name(v->u.simple));
+            printf("%s\n", S_name(v->u.simple));
             E_enventry x = S_look(venv, v->u.simple);
             if (x && x->kind == E_varEntry) {
             	Tr_exp tr = Tr_simpleVar(x->u.var.access, level);
@@ -285,7 +285,7 @@ struct expty transExp(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_
             return expTy(Tr_assignExp(lvalue.exp, rvalue.exp), Ty_Void());
         }
         case A_ifExp: {
-        	// printf("A_ifExp\n");
+        	printf("A_ifExp\n");
             struct expty exp1 = transExp(level, exp, venv, tenv, e->u.iff.test);
             struct expty exp2 = transExp(level, exp, venv, tenv, e->u.iff.then);
             struct expty exp3 = (e->u.iff.elsee) ? 

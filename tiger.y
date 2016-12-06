@@ -78,8 +78,8 @@ void yyerror(char *s)
 %left OF
 %left ELSE
 %nonassoc ASSIGN
-%left OR
-%left AND
+%right OR
+%right AND
 %nonassoc EQ NEQ LT LE GT GE 
 %left PLUS MINUS
 %left TIMES DIVIDE
