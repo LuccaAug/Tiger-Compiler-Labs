@@ -51,6 +51,7 @@ static A_exp transform(A_exp forExp) {
 struct expty transVar(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_var v) {
     switch (v->kind) {
         case A_simpleVar: {
+            // printf("%s\n", S_name(v->u.simple));
             E_enventry x = S_look(venv, v->u.simple);
             if (x && x->kind == E_varEntry) {
             	Tr_exp tr = Tr_simpleVar(x->u.var.access, level);
@@ -323,23 +324,23 @@ struct expty transExp(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_
         case A_forExp: {
         	// printf("A_forExp\n");
         	//type-checking part
-            loopvar = e->u.forr.var;
-            loop++;
-            S_beginScope(venv);
-            Tr_access ac = Tr_allocLocal(level, e->u.forr.escape);
-            S_enter(venv, e->u.forr.var, E_VarEntry(ac, Ty_Int()));
-            struct expty exp1 = transExp(level, exp, venv, tenv, e->u.forr.lo);
-            if (exp1.ty->kind != Ty_int)
-                EM_error(e->pos, "for exp's range type is not integer");
-            struct expty exp2 = transExp(level, exp, venv, tenv, e->u.forr.hi);
-            if (exp2.ty->kind != Ty_int)
-                EM_error(e->pos, "for exp's range type is not integer");
-            struct expty exp3 = transExp(level, exp, venv, tenv, e->u.forr.body);
-            loop--;
-            if (exp3.ty->kind != Ty_nil && exp3.ty->kind != Ty_void)
-                EM_error(e->pos, "for body produces value");
-            S_endScope(venv);
-            loopvar = NULL;
+            // loopvar = e->u.forr.var;
+            // loop++;
+            // S_beginScope(venv);
+            // Tr_access ac = Tr_allocLocal(level, e->u.forr.escape);
+            // S_enter(venv, e->u.forr.var, E_VarEntry(ac, Ty_Int()));
+            // struct expty exp1 = transExp(level, exp, venv, tenv, e->u.forr.lo);
+            // if (exp1.ty->kind != Ty_int)
+            //     EM_error(e->pos, "for exp's range type is not integer");
+            // struct expty exp2 = transExp(level, exp, venv, tenv, e->u.forr.hi);
+            // if (exp2.ty->kind != Ty_int)
+            //     EM_error(e->pos, "for exp's range type is not integer");
+            // struct expty exp3 = transExp(level, exp, venv, tenv, e->u.forr.body);
+            // loop--;
+            // if (exp3.ty->kind != Ty_nil && exp3.ty->kind != Ty_void)
+            //     EM_error(e->pos, "for body produces value");
+            // S_endScope(venv);
+            // loopvar = NULL;
             //transform part
             A_exp forExp = transform(e);
             struct expty result = transExp(level, exp, venv, tenv, forExp);

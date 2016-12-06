@@ -293,7 +293,10 @@ Tr_exp Tr_arithExp(A_oper op, Tr_exp left, Tr_exp right) { /* (+, -, *, /) */
 Tr_exp Tr_eqExp(A_oper op, Tr_exp left, Tr_exp right) {
     /* num is equal */
     T_relOp opp;
-    if (op == A_eqOp) opp = T_eq; else opp = T_ne;
+    if (op == A_eqOp) 
+        opp = T_eq; 
+    else 
+        opp = T_ne;
     T_stm cond = T_Cjump(opp, unEx(left), unEx(right), NULL, NULL);
     patchList trues = PatchList(&cond->u.CJUMP.true, NULL);
     patchList falses = PatchList(&cond->u.CJUMP.false, NULL);
@@ -341,14 +344,12 @@ Tr_exp Tr_relExp(A_oper op, Tr_exp left, Tr_exp right) {
 }
 
 Tr_exp Tr_ifExp(Tr_exp test, Tr_exp then, Tr_exp elsee) {
-    /* init */
     Tr_exp result = NULL;
     Temp_label t = Temp_newlabel(), f = Temp_newlabel(), join = Temp_newlabel();
     struct Cx cond = unCx(test);
     doPatch(cond.trues, t);
     doPatch(cond.falses, f);
-    /* use your pen draw the data graph you will understand */  
-    if (!elsee) {/* there is no-else sentence */
+    if (!elsee) {
         if (then->kind == Tr_nx) {
             result = Tr_Nx(T_Seq(cond.stm, 
                                  T_Seq(T_Label(t),
@@ -357,7 +358,7 @@ Tr_exp Tr_ifExp(Tr_exp test, Tr_exp then, Tr_exp elsee) {
             result = Tr_Nx(T_Seq(cond.stm,
                                  T_Seq(T_Label(t),
                                        T_Seq(then->u.cx.stm, T_Label(f))))); 
-        } else { /*ex*/
+        } else { 
             result = Tr_Nx(T_Seq(cond.stm, 
                                  T_Seq(T_Label(t),
                                        T_Seq(T_Exp(unEx(then)), T_Label(f)))));
@@ -366,18 +367,23 @@ Tr_exp Tr_ifExp(Tr_exp test, Tr_exp then, Tr_exp elsee) {
         Temp_temp r = Temp_newtemp();
         T_stm joinJump = T_Jump(T_Name(join), Temp_LabelList(join, NULL));
         T_stm thenStm;
-        if (then->kind == Tr_ex) thenStm = T_Exp(then->u.ex);
-        else thenStm = (then->kind == Tr_nx) ? then->u.nx : then->u.cx.stm;
+        if (then->kind == Tr_ex) 
+            thenStm = T_Exp(then->u.ex);
+        else 
+            thenStm = (then->kind == Tr_nx) ? then->u.nx : then->u.cx.stm;
         T_stm elseeStm;
-        if (elsee->kind == Tr_ex) elseeStm = T_Exp(elsee->u.ex);
-        else elseeStm = (elsee->kind == Tr_nx) ? elsee->u.nx : elsee->u.cx.stm;
-        result = Tr_Nx(T_Seq(cond.stm, 
-                             T_Seq(T_Label(t), 
-                                   T_Seq(thenStm,
-                                         T_Seq(joinJump, 
-                                               T_Seq(T_Label(f),
-                                                     T_Seq(elseeStm, 
-                                                           T_Seq(joinJump, T_Label(join))))))))); 
+        if (elsee->kind == Tr_ex) 
+            elseeStm = T_Exp(elsee->u.ex);
+        else 
+            elseeStm = (elsee->kind == Tr_nx) ? elsee->u.nx : elsee->u.cx.stm;
+
+        result = Tr_Ex(T_Eseq(cond.stm, 
+                             T_Eseq(T_Label(t), 
+                                   T_Eseq(thenStm,
+                                         T_Eseq(joinJump, 
+                                               T_Eseq(T_Label(f),
+                                                     T_Eseq(elseeStm, 
+                                                           T_Eseq(joinJump, T_Label(join))))))))); 
     }
     return result;
 }
