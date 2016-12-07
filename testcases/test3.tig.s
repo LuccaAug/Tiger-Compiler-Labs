@@ -1,3 +1,0 @@
-Somebody
-Nobody
-BEGIN

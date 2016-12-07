@@ -31,7 +31,7 @@ static void doProc(FILE *out, F_frame frame, T_stm body)
  F_tempMap = Temp_empty();
 
  stmList = C_linearize(body);
- stmList = C_traceSchedule(C_basicBlocks(stmList));
+ // stmList = C_traceSchedule(C_basicBlocks(stmList));
  /* printStmList(stdout, stmList);*/
  iList  = F_codegen(frame, stmList); /* 9 */
 
