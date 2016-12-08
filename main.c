@@ -33,7 +33,7 @@ static void doProc(FILE *out, F_frame frame, T_stm body)
  stmList = C_linearize(body);
  struct C_block block = C_basicBlocks(stmList);
  stmList = C_traceSchedule(block);
- // printStmList(stdout, stmList);
+ // AS_printInstrListmList(stdout, stmList);
  iList  = F_codegen(frame, stmList); /* 9 */
 
  fprintf(out, "BEGIN function\n");
