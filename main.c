@@ -31,8 +31,9 @@ static void doProc(FILE *out, F_frame frame, T_stm body)
  F_tempMap = Temp_empty();
 
  stmList = C_linearize(body);
- // stmList = C_traceSchedule(C_basicBlocks(stmList));
- /* printStmList(stdout, stmList);*/
+ struct C_block block = C_basicBlocks(stmList);
+ stmList = C_traceSchedule(block);
+ // printStmList(stdout, stmList);
  iList  = F_codegen(frame, stmList); /* 9 */
 
  fprintf(out, "BEGIN function\n");
@@ -68,11 +69,14 @@ int main(int argc, string *argv)
    sprintf(outfile, "%s.s", argv[1]);
    out = fopen(outfile, "w");
    /* Chapter 8, 9, 10, 11 & 12 */
-   for (;frags;frags=frags->tail)
+   int count = 0;
+   for (;frags;frags=frags->tail) {
+     printf("%d\n", ++count);
      if (frags->head->kind == F_procFrag) 
        doProc(out, frags->head->u.proc.frame, frags->head->u.proc.body);
      else if (frags->head->kind == F_stringFrag) 
        fprintf(out, "%s\n", frags->head->u.stringg.str);
+   }
 
    fclose(out);
    return 0;
