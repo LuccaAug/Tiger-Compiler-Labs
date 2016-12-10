@@ -80,7 +80,7 @@ static Temp_temp munchExp(T_exp exp) {
 		} break;
 		case T_MEM: {
 			T_exp loc = exp->u.MEM;
-			if (loc->kind == T_BINOP && loc->u.BINOP.op == T_plus)
+			if (loc->kind == T_BINOP && loc->u.BINOP.op == T_plus) {
 				if (loc->u.BINOP.left->kind == T_CONST) {
 					Temp_temp r = Temp_newtemp();
 					T_exp e2 = loc->u.BINOP.right;
@@ -95,7 +95,21 @@ static Temp_temp munchExp(T_exp exp) {
 					emit(AS_Move(String_format("mov `d0,[`s0+%d]\n", n),
 						Temp_TempList(r, NULL), Temp_TempList(munchExp(e2), NULL)));
 					return r;
-				} else assert(0);
+				} else if (loc->u.BINOP.right->kind == T_BINOP){
+					Temp_temp r = Temp_newtemp(),
+							  t = Temp_newtemp(),
+							  e1 = munchExp(loc->u.BINOP.right),
+							  e2 = munchExp(loc->u.BINOP.left);
+					emit(AS_Oper("add `d0,`s0+`s1\n", Temp_TempList(t, NULL),
+					Temp_TempList(e1, Temp_TempList(e2, NULL)), NULL));
+
+					emit(AS_Move(String_format("mov `d0,[`s0]\n"), 
+								 Temp_TempList(r, NULL),
+								 Temp_TempList(t, NULL)));
+					return r;
+				} else
+					assert(0);
+			}
 			else if (loc->kind == T_CONST) {
 				Temp_temp r = Temp_newtemp();
 				int n = loc->u.CONST;
