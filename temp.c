@@ -44,7 +44,10 @@ Temp_temp Temp_newtemp(void)
 
 
 
-struct Temp_map_ {TAB_table tab; Temp_map under;};
+struct Temp_map_ {
+  TAB_table tab; 
+  Temp_map under;
+};
 
 
 Temp_map Temp_name(void) {
