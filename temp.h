@@ -6,6 +6,7 @@
 #ifndef TEMP_H
 #define TEMP_H
 
+struct Temp_temp_ {int num;};
 typedef struct Temp_temp_ *Temp_temp;
 Temp_temp Temp_newtemp(void);
 

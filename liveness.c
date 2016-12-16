@@ -11,7 +11,9 @@
 #include "liveness.h"
 #include "table.h"
 
-static G_table in, out;
+static G_table in, out, conflict;
+static Temp_tempList regs;
+static TAB_table regMap;
 
 Live_moveList Live_MoveList(G_node src, G_node dst, Live_moveList tail) {
 	Live_moveList lm = (Live_moveList) checked_malloc(sizeof(*lm));
@@ -24,8 +26,7 @@ Live_moveList Live_MoveList(G_node src, G_node dst, Live_moveList tail) {
 
 Temp_temp Live_gtemp(G_node n) {
 	//your code here.
-
-	return NULL;
+	return G_nodeInfo(n);
 }
 
 static Temp_tempList minus(Temp_tempList a, Temp_tempList b) {
@@ -33,7 +34,7 @@ static Temp_tempList minus(Temp_tempList a, Temp_tempList b) {
 	for (i = a; i; i = i->tail) {
 		int found = 0;
 		for (j = b; j; j = j->tail)
-			if (i->head.num == j->head.num) {
+			if (i->head->num == j->head->num) {
 				found = 1;
 				break;
 			}
@@ -58,6 +59,27 @@ static Temp_tempList plus(Temp_tempList a, Temp_tempList b) {
 	return r;
 }
 
+static int equal(Temp_tempList a, Temp_tempList b) {
+	Temp_tempList i, j;
+	
+	int amount_a = 0, amount_b = 0;
+	for (i = a; i; i = i->tail) amount_a++;
+	for (i = b; i; i = i->tail) amount_b++;
+	if (amount_a != amount_b) return 0;
+	
+	for (i = a; i; i = i->tail) {
+		int found = 0;
+		for (j = b; j; j = j->tail)
+			if (i->head->num == j->head->num) {
+				found = 1;
+				break;
+			}
+		if (!found) return 0;
+	}
+
+	return 1;
+}
+
 static void Liveness_initial(G_graph flow) {
 	in = G_empty();
 	out = G_empty();
@@ -70,22 +92,104 @@ static void Liveness_initial(G_graph flow) {
 
 static void Liveness_Analysis(G_graph flow) {
 	Liveness_initial(flow);
+	int done = 0;
 
-	G_nodeList nodes = G_nodes(flow), i;
-	for (i = nodes; i; i = i->tail) {
-		G_node n = i->head;
+	while (!done) {
+		done = 1;
+		G_nodeList nodes = G_nodes(flow), i;
+		for (i = nodes; i; i = i->tail) {
+			G_node n = i->head;
+			Temp_tempList def = FG_def(n), use = FG_use(n),
+						  live_in = G_look(in, n), live_out = G_look(out, n);
+			
+			Temp_tempList new_in = plus(live_in, minus(live_out, def)), new_out;
+			G_nodeList succ = G_succ(n);
+			for (; succ; succ = succ->tail)
+				new_out = plus(new_out, G_look(in, succ->head));
+
+			G_enter(in, n, new_in);
+			G_enter(out, n, new_out);
+			if (!equal(new_in, live_in) || !equal(new_out, live_out)) done = 0;
+		}
+	}
+}
+
+static void getAllRegs(G_graph g) {
+	regs = NULL;
+	G_nodeList l = G_nodes(g);
+	for (; l; l = l->tail) {
+		G_node n = l->head;
+		regs = plus(regs, plus(FG_use(n), FG_def(n)));
+	}
+}
+
+static void Conflict_initial(G_graph g) {
+	regMap = TAB_empty();
+	Temp_tempList i;
+	for (i = regs; i; i = i->tail) {
+		G_node n = G_Node(g, i->head);
+		TAB_enter(regMap, i->head, n);
+	}
+}
+
+static G_graph Conflict_Analysis(G_graph flow) {
+	G_graph g = G_Graph();
+	getAllRegs(flow);
+	Conflict_initial(g);
+	G_nodeList nlist;
+	for (nlist = G_nodes(flow); nlist; nlist = nlist->tail) {
+		G_node n = nlist->head;
+		AS_instr inst = G_nodeInfo(n);
 		Temp_tempList def = FG_def(n);
-		Temp_tempList use = FG_use(n);
-
-
+		for(; def; def = def->tail) {
+			Temp_tempList outs = G_look(out, n);
+			for (; outs; outs = outs->tail) {
+				G_node a = TAB_look(regMap, def->head);
+				G_node b = TAB_look(regMap, outs->head);
+				if (a != b)
+					switch (inst->kind) {
+						case I_OPER: 
+						case I_LABEL:
+							G_addEdge(a, b);
+							break;
+						case I_MOVE: {
+							Temp_tempList use = FG_use(n);
+							for (; use; use = use->tail) {
+								G_node c = TAB_look(regMap, use->head);
+								if (b != c) 
+									G_addEdge(a, b);
+							}
+						} break;
+						default:
+							assert(0);
+					}
+			}
+		}
 	}
 
+	return g;
+}
+
+static Live_moveList getMoveList(G_graph flow) {
+	Live_moveList r = NULL;
+	G_nodeList nlist = G_nodes(flow);
+	for (; nlist; nlist = nlist->tail) {
+		G_node n = nlist->head;
+		AS_instr inst = G_nodeInfo(n);
+		if (inst->kind == I_MOVE) {
+			G_node dst = TAB_look(regMap, FG_def(n)->head);
+			G_node src = TAB_look(regMap, FG_use(n)->head);
+			r = Live_MoveList(src, dst, r);
+		}
+	}
+	return r;
 }
 
 struct Live_graph Live_liveness(G_graph flow) {
 	//your code here.
 	struct Live_graph lg;
+	Liveness_Analysis(flow);
+	lg.graph = Conflict_Analysis(flow);
+	lg.moves = getMoveList(flow);
 	return lg;
 }
-
-
