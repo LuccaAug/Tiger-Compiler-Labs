@@ -62,3 +62,16 @@ void G_enter(G_table t, G_node node, void *value);
 
 /* Tell what "node" maps to in table "t" */
 void *G_look(G_table t, G_node node);
+
+typedef struct G_edge_ *G_edge;
+struct G_edge_{
+    G_node src, dst;
+};
+G_edge G_Edge(G_node, G_node);
+
+typedef struct G_edgeList_ *G_edgeList;
+struct G_edgeList_ {
+    G_edge head;
+    G_edgeList tail;
+}
+G_edgeList G_EdgeList(G_edge, G_edgeList);

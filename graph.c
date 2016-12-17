@@ -149,8 +149,6 @@ G_nodeList G_adj(G_node n) {return cat(G_succ(n), G_pred(n));}
 
 void *G_nodeInfo(G_node n) {return n->info;}
 
-
-
 /* G_node table functions */
 
 G_table G_empty(void) {
@@ -167,4 +165,17 @@ void *G_look(G_table t, G_node node)
   return TAB_look(t, node);
 }
 
+G_edge G_Edge(G_node src, G_node dst) {
+  G_edge e = (G_edge)checked_malloc(sizeof(*e));
+  e->src = src;
+  e->dst = dst;
+  return e;
+}
+
+G_edgeList G_EdgeList(G_edge e, G_edgeList l) {
+  G_edgeList list = (G_edgeList)checked_malloc(sizeof(*list));
+  list->head = e;
+  list->tail = l;
+  return list;
+}
 
