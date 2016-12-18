@@ -20,20 +20,53 @@ static AS_instrList coalescedMoves, constrainedMoves, frozenMoves,
                     worklistMoves, activeMoves;
 
 
+static int degree(G_node n) {
+	counter c = G_look(t_degree, n);
+	return c->num;
+}
+
 static int inAdjSet(G_node u, G_node v) {
-    G_nodeList adj = G_adj(u);
-    for (; adj; adj = adj->tail)
-        if (adj->head == v)
-            return 1;
-    return 0;
+	G_nodeList nlist = G_look(adjSet, u);
+	for (; nlist; nlist = nlist->tail)
+		if (nlist->head == v)
+			return 1;
+	return 0;
+}
+
+static void addToAdjSet(G_node u, G_node v) {
+	// add (u, v)
+	G_nodeList nlist = G_look(adjSet, u);
+	nlist = G_NodeList(v, nlist);
+	G_enter(adjSet, u, nlist);
+	// add (v, u)
+	nlist = G_look(adjSet, v);
+	nlist = G_NodeList(u, nlist);
+	G_enter(adjSet, v, nlist);
+}
+
+// add v to adjList[u]
+static void addToAdjList(G_node u, v) { 
+	G_nodeList nlist = G_look(adjList, u);
+	nlist = G_NodeList(v, nlist);
+	G_enter(adjList, u, nlist);
+}
+
+static void increaseDegree(G_node n) {
+	counter c = G_look(t_degree, n);
+	c->num++;
+	G_enter(t_degree, n, c);
 }
 
 static void addEdge(G_node u, G_node v) {
     if (!inAdjSet(u, v) && u != v) {
-        G_addEdge(u, v);
-        G_addEdge(v, u);
+    	addToAdjSet(u, v);
         if (!G_inNodeList(u, precolored)) {
-
+        	addToAdjList(u, v);
+        	increaseDegree(u);
+        }
+        if (!G_inNodeList(v, precolored)) {
+        	addToAdjList(v, u);
+        	increaseDegree(v);
         }
     }
 }
@@ -328,6 +361,40 @@ static void coalesce() {
         addMove(&activeMoves, m);
 }
 
+static void FreezeMoves(G_node u) {
+	AS_instrList ilist = NodeMoves(u);
+	for (; ilist; ilist = ilist->tail) {
+		AS_instr m = ilist->head;
+		G_node x = m->u.MOVE.dst->head,
+		 	   y = m->u.MOVE.src->head, v;
+		if (GetAlias(y) == GetAlias(u)) 
+			v = GetAlias(x);
+		else
+			v = GetAlias(y);
+		delMove(&activeMoves, m);
+		addMove(&frozenMoves, m);
+
+		if (!NodeMoves(v) && degree(v) < k) {
+			delNode(&freezeWorklist, v);
+			addNode(&simplifyWorklist, v);
+		}
+	}
+}
+
+static void SelectSpill() {
+	G_node m = spillWorklist->head;
+	delNode(&spillWorklist, m);
+	addNode(&simplifyWorklist, m);
+	FreezeMoves(m);
+}
+
+static void freeze() {
+	G_node u = freezeWorklist->head;
+	delNode(&freezeWorklist, u);
+	addNode(&simplifyWorklist, u);
+	FreezeMoves(u);
+}
+
 
 struct COL_result COL_color(Live_graph lg, Temp_map initial, Temp_tempList regs) {
 	//your code here.
@@ -341,7 +408,7 @@ struct COL_result COL_color(Live_graph lg, Temp_map initial, Temp_tempList regs)
         if (simplifyWorklist)    simplify();
         else if (worklistMoves)  coalesce();
         else if (freezeWorklist) freeze();
-        else if (spillWorklist)  select_spill();
+        else if (spillWorklist)  SelectSpill();
     } while (!end());
 
 
