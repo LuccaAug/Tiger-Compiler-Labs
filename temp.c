@@ -42,8 +42,6 @@ Temp_temp Temp_newtemp(void)
  return p;
 }
 
-
-
 struct Temp_map_ {
   TAB_table tab; 
   Temp_map under;
@@ -70,7 +68,8 @@ Temp_map Temp_empty(void) {
 Temp_map Temp_layerMap(Temp_map over, Temp_map under) {
   if (over==NULL)
       return under;
-  else return newMap(over->tab, Temp_layerMap(over->under, under));
+  else 
+      return newMap(over->tab, Temp_layerMap(over->under, under));
 }
 
 void Temp_enter(Temp_map m, Temp_temp t, string s) {

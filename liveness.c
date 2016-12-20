@@ -189,7 +189,8 @@ struct Live_graph Live_liveness(G_graph flow) {
 	//your code here.
 	struct Live_graph lg;
 	Liveness_Analysis(flow);
-	lg.graph = Conflict_Analysis(flow);
+	lg.cg = Conflict_Analysis(flow);
+	lg.fg = flow;
 	lg.moves = getMoveList(flow);
 	return lg;
 }

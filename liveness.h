@@ -7,7 +7,8 @@ struct Live_moveList_ {
 Live_moveList Live_MoveList(G_node src, G_node dst, Live_moveList tail);
 
 struct Live_graph {
-	G_graph graph;
+	G_graph cg; //conflict graph
+	G_graph fg; //flow graph
 	Live_moveList moves;
 };
 Temp_temp Live_gtemp(G_node n);

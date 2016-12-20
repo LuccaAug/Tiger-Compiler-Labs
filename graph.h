@@ -73,5 +73,5 @@ typedef struct G_edgeList_ *G_edgeList;
 struct G_edgeList_ {
     G_edge head;
     G_edgeList tail;
-}
+};
 G_edgeList G_EdgeList(G_edge, G_edgeList);
