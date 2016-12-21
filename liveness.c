@@ -29,7 +29,7 @@ Temp_temp Live_gtemp(G_node n) {
 	return G_nodeInfo(n);
 }
 
-static Temp_tempList minus(Temp_tempList a, Temp_tempList b) {
+Temp_tempList minus(Temp_tempList a, Temp_tempList b) {
 	Temp_tempList i, j, r = NULL;
 	for (i = a; i; i = i->tail) {
 		int found = 0;
@@ -43,7 +43,7 @@ static Temp_tempList minus(Temp_tempList a, Temp_tempList b) {
 	return r;
 }
 
-static Temp_tempList plus(Temp_tempList a, Temp_tempList b) {
+Temp_tempList plus(Temp_tempList a, Temp_tempList b) {
 	Temp_tempList i, j, r = NULL;
 	for (i = a; i; i = i->tail)
 		r = Temp_TempList(i->head, NULL);

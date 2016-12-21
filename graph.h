@@ -75,3 +75,11 @@ struct G_edgeList_ {
     G_edgeList tail;
 };
 G_edgeList G_EdgeList(G_edge, G_edgeList);
+
+typedef struct counter_ *counter;
+
+struct counter_ {
+    int num;
+};
+
+counter Counter(int);

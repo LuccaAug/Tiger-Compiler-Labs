@@ -1,3 +1,6 @@
+#ifndef LIVENESS_H
+#define LIVENESS_H
+
 typedef struct Live_moveList_ *Live_moveList;
 struct Live_moveList_ {
 	G_node src, dst;
@@ -14,3 +17,8 @@ struct Live_graph {
 Temp_temp Live_gtemp(G_node n);
 
 struct Live_graph Live_liveness(G_graph flow);
+
+Temp_tempList minus(Temp_tempList a, Temp_tempList b);
+Temp_tempList plus(Temp_tempList a, Temp_tempList b);
+
+#endif

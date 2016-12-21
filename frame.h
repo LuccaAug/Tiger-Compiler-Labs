@@ -31,6 +31,7 @@ struct F_fragList_ {F_frag head; F_fragList tail;};
 F_fragList F_FragList(F_frag head, F_fragList tail);
 
 Temp_map F_tempMap;
+void precolor();
 Temp_tempList F_registers(void);
 string F_getlabel(F_frame frame);
 T_exp F_Exp(F_access acc, T_exp framePtr);

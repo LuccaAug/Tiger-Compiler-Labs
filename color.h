@@ -2,6 +2,10 @@
  * color.h - Data structures and function prototypes for coloring algorithm
  *             to determine register allocation.
  */
+#ifndef COLOR_H
+#define COLOR_H
+
+#include "liveness.h"
 
 struct COL_result {
     Temp_map coloring; 
@@ -10,7 +14,7 @@ struct COL_result {
 
 struct COL_result COL_color(G_graph ig, Temp_map initial, Temp_tempList regs);
 
-static void Build(Live_graph lg);
+static void Build(struct Live_graph lg, Temp_map initial);
 
 static void AddEdge(G_node u, G_node v);
 
@@ -50,4 +54,4 @@ static void AssignColors();
 
 static void RewriteProgram();
 
-
+#endif

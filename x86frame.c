@@ -159,3 +159,40 @@ T_exp F_externalCall(string str, T_expList args) {
 T_stm F_procEntryExit1(F_frame frame, T_stm stm) {
     return stm;
 }
+
+static Temp_tempList registers = NULL;
+static Temp_temp eax = NULL, ebx = NULL, ecx = NULL, edx = NULL, 
+                 esi = NULL, edi = NULL, esp = NULL, ebp = NULL;
+
+void precolor() {
+    Temp_enter(F_tempMap, eax, "%eax");
+    Temp_enter(F_tempMap, ebx, "%ebx");
+    Temp_enter(F_tempMap, ecx, "%ecx");
+    Temp_enter(F_tempMap, edx, "%edx");
+    Temp_enter(F_tempMap, esi, "%esi");
+    Temp_enter(F_tempMap, edi, "%edi");
+    Temp_enter(F_tempMap, esp, "%ebp");
+    Temp_enter(F_tempMap, ebp, "%esp");
+}
+
+Temp_tempList F_registers() {
+    if (!registers) {
+        if (!eax) eax = Temp_newtemp();
+        if (!ebx) ebx = Temp_newtemp();
+        if (!ecx) ecx = Temp_newtemp();
+        if (!edx) edx = Temp_newtemp();
+        if (!esi) esi = Temp_newtemp();
+        if (!edi) edi = Temp_newtemp();
+        if (!esp) esp = Temp_newtemp();
+        if (!ebp) ebp = Temp_newtemp();
+
+        registers = Temp_TempList(eax,
+                    Temp_TempList(ebx,
+                    Temp_TempList(ecx,
+                    Temp_TempList(edx,
+                    Temp_TempList(esi,
+                    Temp_TempList(edi, NULL))))));
+    }
+    precolor();
+    return registers;
+}

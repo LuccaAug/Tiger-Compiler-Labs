@@ -11,7 +11,6 @@
 #include "util.h"
 #include "symbol.h"
 #include "temp.h"
-#include "table.h"
 
 string Temp_labelstring(Temp_label s)
 {return S_name(s);
@@ -41,12 +40,6 @@ Temp_temp Temp_newtemp(void)
  }
  return p;
 }
-
-struct Temp_map_ {
-  TAB_table tab; 
-  Temp_map under;
-};
-
 
 Temp_map Temp_name(void) {
  static Temp_map m = NULL;

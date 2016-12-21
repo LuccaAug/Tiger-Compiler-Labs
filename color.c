@@ -9,8 +9,9 @@
 #include "graph.h"
 #include "color.h"
 #include "table.h"
-#include "counter.h"
+#include "memory.h"
 #include "liveness.h"
+#include "flowgraph.h"
 
 static int k;
 static TAB_table tempMap;
@@ -30,9 +31,9 @@ static int GetColor(G_node n) {
     return c->num;
 }
 
-static int ColorIt(G_node n, int v) {z
+static int ColorIt(G_node n, int v) {
     counter c = Counter(v);
-    G_enter(color, n, c)
+    G_enter(color, n, c);
 }
 
 static int inAdjSet(G_node u, G_node v) {
@@ -55,7 +56,7 @@ static void addToAdjSet(G_node u, G_node v) {
 }
 
 // add v to adjList[u]
-static void addToAdjList(G_node u, v) { 
+static void addToAdjList(G_node u, G_node v) { 
     G_nodeList nlist = G_look(adjList, u);
     nlist = G_NodeList(v, nlist);
     G_enter(adjList, u, nlist);
@@ -89,7 +90,7 @@ static void addMove(AS_instrList *ilist, AS_instr i) {
     *ilist = AS_InstrList(i, *ilist);
 }
 
-static void delMove(AS_instrList *ilist, AS_instr i) {
+static void delMove(AS_instrList *ilist, AS_instr n) {
     AS_instrList i = *ilist, pre = NULL;
     for (; i; i = i->tail) {
         if (i->head == n) {
@@ -112,20 +113,24 @@ static void increase_move(G_node n) {
     G_enter(t_move, n, c);
 }
 
-static void makeTempMap(G_graph cg) {
+static void makeTempMap(G_graph cg, Temp_map initial) {
+	precolored = NULL;
     tempMap = TAB_empty();
+    TAB_table tab = initial->tab;
     G_nodeList nlist = G_nodes(cg);
     for (; nlist; nlist = nlist->tail) {
         G_node n = nlist->head;
         Temp_temp t = G_nodeInfo(n);
         TAB_enter(tempMap, t, n);
+        Temp_temp r = TAB_look(tab, t);
+        if (r) precolored = G_NodeList(n, precolored);
     }
 }
 
 static void count_regs(Temp_tempList r) {
     k = 0;
     Temp_tempList tlist = r;
-    for (; tlist; tlist = tlistt->tail) k++;
+    for (; tlist; tlist = tlist->tail) k++;
 }
 
 static int end() {
@@ -177,9 +182,9 @@ struct COL_result COL_color(G_graph fg, Temp_map initial, Temp_tempList regs) {
     //your code here.
     struct COL_result ret;
 
-    Live_graph lg = Live_liveness(fg);
+    struct Live_graph lg = Live_liveness(fg);
 
-    Build(lg);
+    Build(lg, initial);
 
     MakeWorklist(lg.cg, regs);
 
@@ -197,19 +202,23 @@ struct COL_result COL_color(G_graph fg, Temp_map initial, Temp_tempList regs) {
     		ret.spills = Temp_TempList(G_nodeInfo(spilledNodes->head), ret.spills);
     }
 
+    Temp_temp regArray[k];
+	int i = 0;
+	for (; regs; regs = regs->tail) regArray[i++] = regs->head;
+
     TAB_table tab = TAB_empty();
-    G_nodeList nlist = G_nodes(colors);
+    G_nodeList nlist = G_nodes(lg.cg);
     for (; nlist; nlist = nlist->tail) {
     	G_node n = nlist->head;
-    	TAB_enter(G_nodeInfo(n), GetColor(n));
+    	TAB_enter(tab, G_nodeInfo(n), regArray[GetColor(n)]);
     }
     ret.coloring = newMap(tab, NULL);
 
     return ret;
 }
 
-static void Build(Live_graph lg) {
-    makeTempMap();
+static void Build(struct Live_graph lg, Temp_map initial) {
+    makeTempMap(lg.cg, initial);
     G_graph fg = lg.fg, cg = lg.cg;
     G_nodeList nlist = G_nodes(fg);
     for (; nlist; nlist = nlist->tail) {
@@ -221,7 +230,7 @@ static void Build(Live_graph lg) {
                 G_node n = TAB_look(tempMap, tlist->head);
                 AS_instrList ilist = G_look(moveList, n);
                 ilist = AS_InstrList(i, ilist);
-                G_enter(moveList, ilist);
+                G_enter(moveList, n, ilist);
             }
             addMove(&worklistMoves, i);
         }
@@ -231,7 +240,7 @@ static void Build(Live_graph lg) {
         G_node u = nlist->head;
         G_nodeList vlist = G_adj(u);
         for (; vlist; vlist = vlist->tail) 
-            AddEdge(u, v);
+            AddEdge(u, vlist->head);
     }
 }
 
@@ -257,11 +266,11 @@ static void MakeWorklist(G_graph g, Temp_tempList r) {
         G_node n = nlist->head;
         counter c = G_look(t_degree, n);
         if (c->num >= k) 
-            spillWorklist = G_nodeList(n, spillWorklist);
+            spillWorklist = G_NodeList(n, spillWorklist);
         else if (MoveRelated(n))
-            freezeWorklist = G_nodeList(n, freezeWorklist);
+            freezeWorklist = G_NodeList(n, freezeWorklist);
         else
-            simplifyWorklist = G_nodeList(n, simplifyWorklist);
+            simplifyWorklist = G_NodeList(n, simplifyWorklist);
     }
 }
 
@@ -323,7 +332,7 @@ static void Simplify() {
     G_node n = simplifyWorklist->head;
     simplifyWorklist = simplifyWorklist->tail;
 
-    selectStack = G_nodeList(n, selectStack);
+    selectStack = G_NodeList(n, selectStack);
 
     deal_with_neighbors(G_succ(n));
     deal_with_neighbors(G_pred(n));
@@ -351,8 +360,8 @@ static void EnableMoves(G_nodeList nlist) {
         for (; ilist; ilist = ilist->tail) {
             AS_instr m = ilist->head;
             if (inMoves(m, activeMoves)){
-                delMove(activeMoves, m);
-                addMove(worklistMoves, m);
+                delMove(&activeMoves, m);
+                addMove(&worklistMoves, m);
             }
         }
     }
@@ -361,18 +370,18 @@ static void EnableMoves(G_nodeList nlist) {
 static void Coalesce() {
     AS_instr m = worklistMoves->head;
     delMove(&worklistMoves, m);
-    G_node x = GetAlias(m->u.MOVE.dst->head);
-    G_node y = GetAlias(m->u.MOVE.src->head);
+    G_node x = GetAlias(TAB_look(tempMap, m->u.MOVE.dst->head));
+    G_node y = GetAlias(TAB_look(tempMap, m->u.MOVE.src->head));
     G_node u, v;
     if (G_inNodeList(y, precolored))
         u = y, v = x;
     else
         u = x, v = y;
     if (u == v) {
-        addMove(coalescedMoves, m);
+        addMove(&coalescedMoves, m);
         AddWorkList(u);
     }
-    else if (G_inNodeList(v, precolored) || adjacent(u, v)) {
+    else if (G_inNodeList(v, precolored) || inAdjSet(u, v)) {
         addMove(&constrainedMoves, m);
         AddWorkList(u);
         AddWorkList(v);
@@ -431,7 +440,7 @@ static void Combine(G_node u, G_node v) {
     addNode(&coalescedNodes, v);
     G_enter(alias, v, u);
     combine_moveList(u, v);
-    EnableMoves(v);
+    EnableMoves(G_NodeList(v, NULL));
     G_nodeList adj = Adjacent(v);
     for (; adj; adj = adj->tail) {
         G_node t = adj->head;
@@ -456,8 +465,8 @@ static void FreezeMoves(G_node u) {
     AS_instrList ilist = NodeMoves(u);
     for (; ilist; ilist = ilist->tail) {
         AS_instr m = ilist->head;
-        G_node x = m->u.MOVE.dst->head,
-               y = m->u.MOVE.src->head, v;
+        G_node x = TAB_look(tempMap, m->u.MOVE.dst->head),
+               y = TAB_look(tempMap, m->u.MOVE.src->head), v;
         if (GetAlias(y) == GetAlias(u)) 
             v = GetAlias(x);
         else
@@ -483,13 +492,14 @@ static void AssignColors() {
     while (selectStack) {
         G_node n = selectStack->head;
         delNode(&selectStack, n);
-        int okColors[k] = {0};
+        int okColors[k];
+        memset(okColors, 0, sizeof(okColors));
         G_nodeList nlist = G_look(adjList, n);
         for (; nlist; nlist = nlist->tail) {
             G_node w = GetAlias(nlist->head);
             if (G_inNodeList(w, coloredNodes) ||
                 G_inNodeList(w, precolored)) {
-                okColors[color(w)] = 1;
+                okColors[GetColor(w)] = 1;
             }
         }
         
