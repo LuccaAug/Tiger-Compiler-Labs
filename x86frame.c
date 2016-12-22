@@ -11,7 +11,8 @@
 /*Lab5: Your implementation here.*/
 const int F_wordSize = 4;
 const int F_MAX_REG = 6;
-static Temp_temp fp = NULL;
+static Temp_temp ebp = NULL, esp = NULL, eax = NULL, ebx = NULL, 
+                 ecx = NULL, edx = NULL, esi = NULL, edi = NULL;
 
 struct F_frame_ {
     int local;
@@ -139,10 +140,52 @@ F_frag F_newProcFrag(T_stm body, F_frame frame) {
     return f;
 }
 
-Temp_temp F_FP(void) {
-    if (!fp) 
-        fp = Temp_newtemp();
-    return fp;
+Temp_temp F_EBP(void) {
+    if (!ebp) 
+        ebp = Temp_newtemp();
+    return ebp;
+}
+
+Temp_temp F_ESP(void) {
+    if (!esp) 
+        esp = Temp_newtemp();
+    return esp;
+}
+
+Temp_temp F_EAX(void) {
+    if (!eax) 
+        eax = Temp_newtemp();
+    return eax;
+}
+
+Temp_temp F_EBX(void) {
+    if (!ebx) 
+        ebx = Temp_newtemp();
+    return ebx;
+}
+
+Temp_temp F_ECX(void) {
+    if (!ecx) 
+        ecx = Temp_newtemp();
+    return ecx;
+}
+
+Temp_temp F_EDX(void) {
+    if (!edx) 
+        edx = Temp_newtemp();
+    return edx;
+}
+
+Temp_temp F_ESI(void) {
+    if (!esi) 
+        esi = Temp_newtemp();
+    return esi;
+}
+
+Temp_temp F_EDI(void) {
+    if (!edi) 
+        edi = Temp_newtemp();
+    return edi;
 }
 
 T_exp F_Exp(F_access access, T_exp framePtr) {
@@ -157,41 +200,49 @@ T_exp F_externalCall(string str, T_expList args) {
 }
 
 T_stm F_procEntryExit1(F_frame frame, T_stm stm) {
-    return stm;
+    F_access ebx = F_allocLocal(frame, true);
+    F_access esi = F_allocLocal(frame, true);
+    F_access edi = F_allocLocal(frame, true);
+    T_stm pushEBX = T_MOVE(T_Binop(T_minus, T_Temp(F_EBP()), T_Const(ebx->u.offset)), T_Temp(F_EBX()));
+    T_stm pushESI = T_MOVE(T_Binop(T_minus, T_Temp(F_EBP()), T_Const(esi->u.offset)), T_Temp(F_ESI()));
+    T_stm pushEDI = T_MOVE(T_Binop(T_minus, T_Temp(F_EBP()), T_Const(edi->u.offset)), T_Temp(F_EDI()));
+    T_stm popEBX = T_MOVE(T_Temp(F_EBX()), T_Binop(T_minus, T_Temp(F_EBP()), T_Const(ebx->u.offset)));
+    T_stm popESI = T_MOVE(T_Temp(F_ESI()), T_Binop(T_minus, T_Temp(F_EBP()), T_Const(esi->u.offset)));
+    T_stm popEDI = T_MOVE(T_Temp(F_EDI()), T_Binop(T_minus, T_Temp(F_EBP()), T_Const(edi->u.offset)));
+    return T_Seq(pushEBX, T_Seq(pushESI, T_Seq(pushEDI, T_Seq(stm, T_Seq(popEBX, T_Seq(popESI, popEDI))))));
+}
+
+AS_instrList F_procEntryExit2(AS_instrList body) {
+    //TO DO:
+}
+
+AS_proc F_procEntryExit3(F_frame frame, AS_instrList body) {
+    string p = "pushl %%ebp\nmovl %%esp, %%ebp\nsubl $64, %%esp\n";
+    string e = "movl %%ebp, %%esp\npopl %%ebp\nret\n";
+    return AS_Proc(p, body, e);
 }
 
 static Temp_tempList registers = NULL;
-static Temp_temp eax = NULL, ebx = NULL, ecx = NULL, edx = NULL, 
-                 esi = NULL, edi = NULL, esp = NULL, ebp = NULL;
 
 void precolor() {
-    Temp_enter(F_tempMap, eax, "%eax");
-    Temp_enter(F_tempMap, ebx, "%ebx");
-    Temp_enter(F_tempMap, ecx, "%ecx");
-    Temp_enter(F_tempMap, edx, "%edx");
-    Temp_enter(F_tempMap, esi, "%esi");
-    Temp_enter(F_tempMap, edi, "%edi");
-    Temp_enter(F_tempMap, esp, "%ebp");
-    Temp_enter(F_tempMap, ebp, "%esp");
+    Temp_enter(F_tempMap, F_EAX(), "%%eax");
+    Temp_enter(F_tempMap, F_EBX(), "%%ebx");
+    Temp_enter(F_tempMap, F_ECX(), "%%ecx");
+    Temp_enter(F_tempMap, F_EDX(), "%%edx");
+    Temp_enter(F_tempMap, F_ESI(), "%%esi");
+    Temp_enter(F_tempMap, F_EDI(), "%%edi");
+    Temp_enter(F_tempMap, F_EBP(), "%%ebp");
+    Temp_enter(F_tempMap, F_ESP(), "%%esp");
 }
 
 Temp_tempList F_registers() {
     if (!registers) {
-        if (!eax) eax = Temp_newtemp();
-        if (!ebx) ebx = Temp_newtemp();
-        if (!ecx) ecx = Temp_newtemp();
-        if (!edx) edx = Temp_newtemp();
-        if (!esi) esi = Temp_newtemp();
-        if (!edi) edi = Temp_newtemp();
-        if (!esp) esp = Temp_newtemp();
-        if (!ebp) ebp = Temp_newtemp();
-
-        registers = Temp_TempList(eax,
-                    Temp_TempList(ebx,
-                    Temp_TempList(ecx,
-                    Temp_TempList(edx,
-                    Temp_TempList(esi,
-                    Temp_TempList(edi, NULL))))));
+        registers = Temp_TempList(F_EAX(),
+                    Temp_TempList(F_EBX(),
+                    Temp_TempList(F_ECX(),
+                    Temp_TempList(F_EDX(),
+                    Temp_TempList(F_ESI(),
+                    Temp_TempList(F_EDI(), NULL))))));
     }
     precolor();
     return registers;

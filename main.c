@@ -42,8 +42,10 @@ static void doProc(FILE *out, F_frame frame, T_stm body)
  struct RA_result ra = RA_regAlloc(frame, iList);  /* 10, 11 */
 
  fprintf(out, "BEGIN function\n");
+ fprintf(out, "pushl %%ebp\nmovl %%esp, %%ebp\nsubl $64, %%esp\n");
  AS_printInstrList (out, iList,
                        Temp_layerMap(F_tempMap,ra.coloring));
+ fprintf(out, "movl %%ebp, %%esp\npopl %%ebp\nret\n");
  fprintf(out, "END function\n\n");
 }
 
