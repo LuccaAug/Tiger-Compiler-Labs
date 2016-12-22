@@ -641,7 +641,9 @@ F_fragList SEM_transProg(A_exp exp){
     S_enter(venv, S_Symbol("getchar"), E_FunEntry(Tr_outermost(), Temp_newlabel(), NULL, Ty_String()));
     S_enter(venv, S_Symbol("ord"), E_FunEntry(Tr_outermost(), Temp_newlabel(), Ty_TyList(Ty_String(), NULL), Ty_Int()));
     S_enter(venv, S_Symbol("print"), E_FunEntry(Tr_outermost(), Temp_newlabel(), Ty_TyList(Ty_String(), NULL), Ty_Void()));
+    S_enter(venv, S_Symbol("printi"), E_FunEntry(Tr_outermost(), Temp_newlabel(), Ty_TyList(Ty_Int(), NULL), Ty_Void()));
     S_enter(venv, S_Symbol("chr"), E_FunEntry(Tr_outermost(), Temp_newlabel(), Ty_TyList(Ty_Int(), NULL), Ty_String()));
+
 
     Tr_level outermost = Tr_outermost();
     struct expty program = transExp(outermost, NULL, venv, tenv, exp);
