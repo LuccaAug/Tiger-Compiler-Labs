@@ -172,7 +172,7 @@ static struct Cx unCx(Tr_exp e){
 }
 
 Tr_exp Tr_simpleVar(Tr_access ac, Tr_level l) {
-    T_exp addr = T_Temp(F_FP()); /*addr is frame point*/
+    T_exp addr = T_Temp(F_EBP()); /*addr is frame point*/
     while (/*l && */l != ac->level->parent) { /* until find the level which def the var */
         F_access sl = F_formals(l->frame)->head;
         addr = F_Exp(sl, addr);
@@ -194,8 +194,14 @@ Tr_exp Tr_subscriptVar(Tr_exp base, Tr_exp index) {
 }
 
 static F_fragList fragList       = NULL;
-void Tr_procEntryExit(Tr_level level, Tr_exp body, Tr_accessList formals) {
-    F_frag procfrag = F_ProcFrag(unNx(body), level->frame);
+void Tr_procEntryExit(Tr_level level, Tr_exp body, S_symbol result) {
+    T_stm stm;
+    if (result)
+        stm = T_Seq(T_Label(level->name), T_Move(T_Temp(F_EAX()), unEx(body)));
+    else
+        stm = T_Seq(T_Label(level->name), unNx(body));
+
+    F_frag procfrag = F_ProcFrag(stm, level->frame);
     fragList = F_FragList(procfrag, fragList);
 }
 
@@ -400,7 +406,7 @@ Tr_exp Tr_ifExp(Tr_exp test, Tr_exp then, Tr_exp elsee) {
 
 static Tr_exp Tr_StaticLink(Tr_level now, Tr_level def) {
     /* get call-function's static-link */
-    T_exp addr = T_Temp(F_FP());/* frame-point */
+    T_exp addr = T_Temp(F_EBP());/* frame-point */
     while(now && (now != def->parent)) { /* until find the level which def the function */
         F_access sl = F_formals(now->frame)->head;
         addr = F_Exp(sl, addr);
@@ -425,11 +431,14 @@ static T_expList Tr_expList_convert(Tr_expList l) {
     return h;
 }
 
-Tr_exp Tr_callExp(Temp_label label, Tr_level fun, Tr_level call, Tr_expList * l) {
+Tr_exp Tr_callExp(Temp_label label, Tr_level fun, Tr_level call, Tr_expList * l, Ty_ty result) {
     T_expList args = NULL;
     Tr_expList_prepend(Tr_StaticLink(call, fun), l); /* pass the static-link as the first para */
     args = Tr_expList_convert(*l);
-    return Tr_Ex(T_Call(T_Name(label), args));
+    if (result->kind == Ty_void) 
+        return Tr_Ex(T_Call(T_Name(label), args));
+    else
+        return Tr_Ex(T_Eseq(T_Exp(T_Call(T_Name(label), args)),T_Temp(F_EAX())));
 }
 
 static patchList PatchList(Temp_label * h, patchList t) {

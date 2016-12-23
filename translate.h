@@ -33,7 +33,7 @@ Tr_exp Tr_subscriptVar(Tr_exp, Tr_exp);
 Tr_exp Tr_stringExp(string);
 Tr_exp Tr_intExp(int);
 Tr_exp Tr_noExp();
-Tr_exp Tr_callExp(Temp_label label, Tr_level, Tr_level, Tr_expList *);
+Tr_exp Tr_callExp(Temp_label label, Tr_level, Tr_level, Tr_expList *, Ty_ty);
 Tr_exp Tr_nilExp();
 Tr_exp Tr_recordExp(int, Tr_expList);
 Tr_exp Tr_arrayExp(Tr_exp, Tr_exp);
@@ -49,7 +49,7 @@ Tr_exp Tr_relExp(A_oper, Tr_exp, Tr_exp);
 Tr_exp Tr_ifExp(Tr_exp, Tr_exp, Tr_exp);
 
 void Tr_expList_prepend(Tr_exp, Tr_expList *);
-void Tr_procEntryExit(Tr_level, Tr_exp, Tr_accessList);
+void Tr_procEntryExit(Tr_level, Tr_exp, S_symbol);
 F_fragList Tr_getResult();
 /******DEBUD INFO******/
 T_exp public_unEx(Tr_exp);

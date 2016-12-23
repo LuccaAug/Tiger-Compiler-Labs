@@ -21,9 +21,39 @@ static G_nodeList simplifyWorklist, freezeWorklist, spillWorklist, selectStack;
 static AS_instrList coalescedMoves, constrainedMoves, frozenMoves, 
                     worklistMoves, activeMoves;
 
+static void initialize() {
+    k = 0;
+    tempMap = TAB_empty();
+    t_degree = G_empty();
+    t_move   = G_empty();
+    alias    = G_empty();
+    moveList = G_empty();
+    adjSet   = G_empty();
+    adjList  = G_empty();
+    color    = G_empty();
+    coalescedNodes   = NULL;
+    precolored       = NULL;
+    coloredNodes     = NULL;
+    spilledNodes     = NULL;
+    simplifyWorklist = NULL;
+    freezeWorklist   = NULL;
+    spillWorklist    = NULL;
+    selectStack      = NULL;
+    coalescedMoves   = NULL;
+    constrainedMoves = NULL;
+    frozenMoves      = NULL;
+    worklistMoves    = NULL;
+    activeMoves      = NULL;
+}
+
 static int degree(G_node n) {
     counter c = G_look(t_degree, n);
     return c->num;
+}
+
+static void PutDegree(G_node n, int i) {
+    counter c = Counter(i);
+    G_enter(t_degree, n, c);
 }
 
 static int GetColor(G_node n) {
@@ -114,12 +144,11 @@ static void increase_move(G_node n) {
 }
 
 static void makeTempMap(G_graph cg, Temp_map initial) {
-	precolored = NULL;
-    tempMap = TAB_empty();
     TAB_table tab = initial->tab;
     G_nodeList nlist = G_nodes(cg);
     for (; nlist; nlist = nlist->tail) {
         G_node n = nlist->head;
+        PutDegree(n, 0);
         Temp_temp t = G_nodeInfo(n);
         TAB_enter(tempMap, t, n);
         Temp_temp r = TAB_look(tab, t);
@@ -128,7 +157,6 @@ static void makeTempMap(G_graph cg, Temp_map initial) {
 }
 
 static void count_regs(Temp_tempList r) {
-    k = 0;
     Temp_tempList tlist = r;
     for (; tlist; tlist = tlist->tail) k++;
 }
@@ -218,6 +246,7 @@ struct COL_result COL_color(G_graph fg, Temp_map initial, Temp_tempList regs) {
 }
 
 static void Build(struct Live_graph lg, Temp_map initial) {
+    initialize();
     makeTempMap(lg.cg, initial);
     G_graph fg = lg.fg, cg = lg.cg;
     G_nodeList nlist = G_nodes(fg);
@@ -225,7 +254,9 @@ static void Build(struct Live_graph lg, Temp_map initial) {
         G_node m = nlist->head;
         AS_instr i = G_nodeInfo(m);
         if (i->kind == I_MOVE) {
-            Temp_tempList tlist = plus(FG_use(m), FG_def(m));
+            Temp_tempList def = FG_def(m), use = FG_use(m);
+            if (!def || !use) continue;
+            Temp_tempList tlist = plus(use, def);
             for (; tlist; tlist = tlist->tail) {
                 G_node n = TAB_look(tempMap, tlist->head);
                 AS_instrList ilist = G_look(moveList, n);
@@ -259,7 +290,6 @@ static void AddEdge(G_node u, G_node v) {
 }
 
 static void MakeWorklist(G_graph g, Temp_tempList r) {
-    selectStack = NULL;
     count_regs(r);
     G_nodeList nlist = G_nodes(g);
     for (; nlist; nlist = nlist->tail) {

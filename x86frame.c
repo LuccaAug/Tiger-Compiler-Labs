@@ -200,27 +200,27 @@ T_exp F_externalCall(string str, T_expList args) {
 }
 
 T_stm F_procEntryExit1(F_frame frame, T_stm stm) {
-    F_access ebx = F_allocLocal(frame, true);
-    F_access esi = F_allocLocal(frame, true);
-    F_access edi = F_allocLocal(frame, true);
-    T_stm pushEBX = T_MOVE(T_Binop(T_minus, T_Temp(F_EBP()), T_Const(ebx->u.offset)), T_Temp(F_EBX()));
-    T_stm pushESI = T_MOVE(T_Binop(T_minus, T_Temp(F_EBP()), T_Const(esi->u.offset)), T_Temp(F_ESI()));
-    T_stm pushEDI = T_MOVE(T_Binop(T_minus, T_Temp(F_EBP()), T_Const(edi->u.offset)), T_Temp(F_EDI()));
-    T_stm popEBX = T_MOVE(T_Temp(F_EBX()), T_Binop(T_minus, T_Temp(F_EBP()), T_Const(ebx->u.offset)));
-    T_stm popESI = T_MOVE(T_Temp(F_ESI()), T_Binop(T_minus, T_Temp(F_EBP()), T_Const(esi->u.offset)));
-    T_stm popEDI = T_MOVE(T_Temp(F_EDI()), T_Binop(T_minus, T_Temp(F_EBP()), T_Const(edi->u.offset)));
+    F_access ebx = F_allocLocal(frame, TRUE);
+    F_access esi = F_allocLocal(frame, TRUE);
+    F_access edi = F_allocLocal(frame, TRUE);
+    T_stm pushEBX = T_Move(T_Binop(T_minus, T_Temp(F_EBP()), T_Const(ebx->u.offset)), T_Temp(F_EBX()));
+    T_stm pushESI = T_Move(T_Binop(T_minus, T_Temp(F_EBP()), T_Const(esi->u.offset)), T_Temp(F_ESI()));
+    T_stm pushEDI = T_Move(T_Binop(T_minus, T_Temp(F_EBP()), T_Const(edi->u.offset)), T_Temp(F_EDI()));
+    T_stm popEBX = T_Move(T_Temp(F_EBX()), T_Binop(T_minus, T_Temp(F_EBP()), T_Const(ebx->u.offset)));
+    T_stm popESI = T_Move(T_Temp(F_ESI()), T_Binop(T_minus, T_Temp(F_EBP()), T_Const(esi->u.offset)));
+    T_stm popEDI = T_Move(T_Temp(F_EDI()), T_Binop(T_minus, T_Temp(F_EBP()), T_Const(edi->u.offset)));
     return T_Seq(pushEBX, T_Seq(pushESI, T_Seq(pushEDI, T_Seq(stm, T_Seq(popEBX, T_Seq(popESI, popEDI))))));
 }
 
-AS_instrList F_procEntryExit2(AS_instrList body) {
-    //TO DO:
-}
+// AS_instrList F_procEntryExit2(AS_instrList body) {
+//     //TO DO:
+// }
 
-AS_proc F_procEntryExit3(F_frame frame, AS_instrList body) {
-    string p = "pushl %%ebp\nmovl %%esp, %%ebp\nsubl $64, %%esp\n";
-    string e = "movl %%ebp, %%esp\npopl %%ebp\nret\n";
-    return AS_Proc(p, body, e);
-}
+// AS_proc F_procEntryExit3(F_frame frame, AS_instrList body) {
+//     string p = "pushl %%ebp\nmovl %%esp, %%ebp\nsubl $64, %%esp\n";
+//     string e = "movl %%ebp, %%esp\npopl %%ebp\nret\n";
+//     return AS_Proc(p, body, e);
+// }
 
 static Temp_tempList registers = NULL;
 

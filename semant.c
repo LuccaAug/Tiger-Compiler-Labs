@@ -148,7 +148,7 @@ struct expty transExp(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_
                 }
                 if (formal) 
                     EM_error(e->pos, "call exp too little args");
-                Tr_exp tr = Tr_callExp(f->u.fun.label, f->u.fun.level, level, &argList);
+                Tr_exp tr = Tr_callExp(f->u.fun.label, f->u.fun.level, level, &argList, actual_ty(f->u.fun.result));
                 return expTy(tr, f->u.fun.result);
             } else {
                 EM_error(e->pos, "undefined function %s", S_name(e->u.call.func));
@@ -505,7 +505,7 @@ Tr_exp transDec(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_dec d)
                 }
 
                 struct expty body = transExp(funEntry->u.fun.level, exp, venv, tenv, fundec->body);
-                Tr_procEntryExit(funEntry->u.fun.level, body.exp, acls);
+                Tr_procEntryExit(funEntry->u.fun.level, body.exp, fundec->result);
 
                 S_endScope(venv);
                 Ty_ty result = Ty_Void();

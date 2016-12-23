@@ -20,8 +20,8 @@ Temp_tempList FG_def(G_node n) {
             return x->u.OPER.dst;
         case I_MOVE:
             return x->u.MOVE.dst;
-	case I_LABEL:
-	    return NULL;
+	    case I_LABEL:
+	        return NULL;
         default:
             assert(0);
     }
@@ -36,8 +36,8 @@ Temp_tempList FG_use(G_node n) {
             return x->u.OPER.src;
         case I_MOVE:
             return x->u.MOVE.src;
-	case I_LABEL:
-	    return NULL;
+	    case I_LABEL:
+	        return NULL;
         default:
             assert(0);
     }
