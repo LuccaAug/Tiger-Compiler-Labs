@@ -143,6 +143,9 @@ static void increase_move(G_node n) {
     G_enter(t_move, n, c);
 }
 
+//1.build temp-to-node map
+//2.clear every node's degree to 0
+//3.initialize precolor list
 static void makeTempMap(G_graph cg, Temp_map initial) {
     TAB_table tab = initial->tab;
     G_nodeList nlist = G_nodes(cg);
@@ -151,7 +154,7 @@ static void makeTempMap(G_graph cg, Temp_map initial) {
         PutDegree(n, 0);
         Temp_temp t = G_nodeInfo(n);
         TAB_enter(tempMap, t, n);
-        Temp_temp r = TAB_look(tab, t);
+        string r = TAB_look(tab, t);
         if (r) precolored = G_NodeList(n, precolored);
     }
 }
@@ -238,7 +241,8 @@ struct COL_result COL_color(G_graph fg, Temp_map initial, Temp_tempList regs) {
     G_nodeList nlist = G_nodes(lg.cg);
     for (; nlist; nlist = nlist->tail) {
     	G_node n = nlist->head;
-    	TAB_enter(tab, G_nodeInfo(n), regArray[GetColor(n)]);
+    	string s = Temp_look(initial, regArray[GetColor(n)]);
+    	TAB_enter(tab, G_nodeInfo(n), s);
     }
     ret.coloring = newMap(tab, NULL);
 
@@ -294,13 +298,13 @@ static void MakeWorklist(G_graph g, Temp_tempList r) {
     G_nodeList nlist = G_nodes(g);
     for (; nlist; nlist = nlist->tail) {
         G_node n = nlist->head;
-        counter c = G_look(t_degree, n);
-        if (c->num >= k) 
-            spillWorklist = G_NodeList(n, spillWorklist);
+        int d = degree(n);
+        if (d >= k) 
+        	addNode(&spillWorklist, n);
         else if (MoveRelated(n))
-            freezeWorklist = G_NodeList(n, freezeWorklist);
+        	addNode(&freezeWorklist, n);
         else
-            simplifyWorklist = G_NodeList(n, simplifyWorklist);
+        	addNode(&simplifyWorklist, n);
     }
 }
 
@@ -364,22 +368,24 @@ static void Simplify() {
 
     selectStack = G_NodeList(n, selectStack);
 
-    deal_with_neighbors(G_succ(n));
-    deal_with_neighbors(G_pred(n));
+    G_nodeList nlist = Adjacent(n);
+    for (; nlist; nlist = nlist->tail)
+    	DecrementDegree(nlist->head);
+
 }
 
-static void DecrementDegree(G_node n) {
-    counter c = G_look(t_degree, n);
-    c->num--;
-    G_enter(t_degree, n, c);
+static void DecrementDegree(G_node m) {
+    int d = degree(m);
+    PutDegree(m, d - 1);
 
-    if (c->num < k) {
-        G_nodeList tmp = G_NodeList(n, Adjacent(n));
+    if (d == k) {
+        G_nodeList tmp = G_NodeList(m, Adjacent(m));
         EnableMoves(tmp);
-        if (MoveRelated(n))
-            addNode(&freezeWorklist, n);
+        delNode(&spillWorklist, m);
+        if (MoveRelated(m))
+            addNode(&freezeWorklist, m);
         else
-            addNode(&simplifyWorklist, n);
+            addNode(&simplifyWorklist, m);
     }
 }
 
@@ -408,16 +414,19 @@ static void Coalesce() {
     else
         u = x, v = y;
     if (u == v) {
+    	//already coalesced
         addMove(&coalescedMoves, m);
         AddWorkList(u);
     }
     else if (G_inNodeList(v, precolored) || inAdjSet(u, v)) {
+    	//both are precolored or conflicted
         addMove(&constrainedMoves, m);
         AddWorkList(u);
         AddWorkList(v);
     }
     else if ((G_inNodeList(u, precolored) && Safe(u, v)) ||
             (!G_inNodeList(u, precolored) && Conservative(u, v))) {
+    	//it's OK to coalesce u and v
         addMove(&coalescedMoves, m);
         Combine(u, v);
         AddWorkList(u);
@@ -427,29 +436,25 @@ static void Coalesce() {
 }
 
 static void AddWorkList(G_node n) {
-    counter c = G_look(t_degree, n);
-    if (!G_inNodeList(n, precolored) && !MoveRelated(n) && c->num < k) {
+    int d = degree(n);
+    if (!G_inNodeList(n, precolored) && !MoveRelated(n) && d < k) {
         delNode(&freezeWorklist, n);
         addNode(&simplifyWorklist, n);
     }
 }
 
 static int OK(G_node t, G_node u) {
-    counter c = G_look(t_degree, t);
-    return c->num < k || G_inNodeList(t, precolored) || inAdjSet(t, u);
+    int d = degree(t);
+    return d < k || G_inNodeList(t, precolored) || inAdjSet(t, u);
 }
 
 static int Conservative(G_node u, G_node v) {
     int kk = 0;
     G_nodeList uadj = Adjacent(u), vadj = Adjacent(v);
-    for (; uadj; uadj = uadj->tail) {
-        counter c = G_look(t_degree, uadj->head);
-        if (c->num > k) kk++;
-    }
-    for (; vadj; vadj = vadj->tail) {
-        counter c = G_look(t_degree, vadj->head);
-        if (c->num > k) k++;
-    }
+    for (; uadj; uadj = uadj->tail)
+    	kk += (degree(uadj->head) >= k);
+    for (; vadj; vadj = vadj->tail)
+    	kk += (degree(vadj->head) >= k);
     return kk < k;
 }
 
@@ -477,8 +482,8 @@ static void Combine(G_node u, G_node v) {
         AddEdge(t, u);
         DecrementDegree(t);
     }
-    counter c = G_look(t_degree, u);
-    if (c->num >= k && G_inNodeList(u, freezeWorklist)) {
+    int d = degree(u);
+    if (d >= k && G_inNodeList(u, freezeWorklist)) {
         delNode(&freezeWorklist, u);
         addNode(&spillWorklist, u);
     }
@@ -536,12 +541,15 @@ static void AssignColors() {
         int i, available = k;
         for (i = 0; i < k; i++) available -= okColors[i];
 
+        printf("AssignColors available color = %d\n", available);
+
         if (available == 0)
             addNode(&spilledNodes, n);
         else {
             addNode(&coloredNodes, n);
             for (i = 0; i < k; i++)
                 if (!okColors[i]) {
+                	printf("AssignColors node=%d color=%d\n", n, i);
                     ColorIt(n, i);
                     break;
                 }

@@ -85,14 +85,14 @@ static Temp_temp munchExp(T_exp exp) {
 					Temp_temp r = Temp_newtemp();
 					T_exp e2 = loc->u.BINOP.right;
 					int n = loc->u.BINOP.left->u.CONST;
-					emit(AS_Move(String_format("mov `d0,[`s0+%d]\n", n),
+					emit(AS_Move(String_format("movl `d0,[`s0+%d]\n", n),
 						Temp_TempList(r, NULL), Temp_TempList(munchExp(e2), NULL)));
 					return r;
 				} else if (loc->u.BINOP.right->kind == T_CONST) {
 					Temp_temp r = Temp_newtemp();
 					T_exp e2 = loc->u.BINOP.left;
 					int n = loc->u.BINOP.right->u.CONST;
-					emit(AS_Move(String_format("mov `d0,[`s0+%d]\n", n),
+					emit(AS_Move(String_format("movl `d0,[`s0+%d]\n", n),
 						Temp_TempList(r, NULL), Temp_TempList(munchExp(e2), NULL)));
 					return r;
 				} else if (loc->u.BINOP.right->kind == T_BINOP){
@@ -103,7 +103,7 @@ static Temp_temp munchExp(T_exp exp) {
 					emit(AS_Oper("add `d0,`s0+`s1\n", Temp_TempList(t, NULL),
 					Temp_TempList(e1, Temp_TempList(e2, NULL)), NULL));
 
-					emit(AS_Move(String_format("mov `d0,[`s0]\n"), 
+					emit(AS_Move(String_format("movl `d0,[`s0]\n"), 
 								 Temp_TempList(r, NULL),
 								 Temp_TempList(t, NULL)));
 					return r;
@@ -113,13 +113,13 @@ static Temp_temp munchExp(T_exp exp) {
 			else if (loc->kind == T_CONST) {
 				Temp_temp r = Temp_newtemp();
 				int n = loc->u.CONST;
-				emit(AS_Move(String_format("mov `d0,[%d]\n", n), Temp_TempList(r, NULL),
+				emit(AS_Move(String_format("movl `d0,[%d]\n", n), Temp_TempList(r, NULL),
 					NULL));
 				return r; 
 			} else {
 				Temp_temp r = Temp_newtemp();
 				T_exp e1 = loc->u.MEM;
-				emit(AS_Move(String_format("mov `d0,[`s0]\n"), Temp_TempList(r, NULL),
+				emit(AS_Move(String_format("movl `d0,[`s0]\n"), Temp_TempList(r, NULL),
 					Temp_TempList(munchExp(e1), NULL)));
 				return r;
 			}
@@ -138,14 +138,14 @@ static Temp_temp munchExp(T_exp exp) {
 		} break;
 		case T_CONST: {
 			Temp_temp r = Temp_newtemp();
-			emit(AS_Move(String_format("mov `d0,%d\n", exp->u.CONST),
+			emit(AS_Move(String_format("movl `d0,%d\n", exp->u.CONST),
 				Temp_TempList(r, NULL), NULL));
 			return r;
 		} break;
 		case T_CALL: {
 			Temp_temp r = munchExp(exp->u.CALL.fun);
 			Temp_tempList args = munchArgs(0, exp->u.CALL.args);
-			emit(AS_Oper("call `s0\n", NULL, 
+			emit(AS_Oper("call `s0\n", F_CallerSave(), 
 						 Temp_TempList(r, args), NULL));
 			return r;
 		} break;
@@ -211,7 +211,7 @@ static void munchStm(T_stm stm) {
 					T_exp e1 = dst->u.MEM->u.BINOP.left, e2 = src;
 					munchExp(e1); munchExp(e2);
 					int c = dst->u.MEM->u.BINOP.right->u.CONST;
-					emit(AS_Move(String_format("mov [`s0 + %d],`s1\n", c),
+					emit(AS_Move(String_format("movl [`s0 + %d],`s1\n", c),
 							NULL, Temp_TempList(munchExp(e1), 
 								  Temp_TempList(munchExp(e2), NULL))));
 				} else
@@ -221,20 +221,20 @@ static void munchStm(T_stm stm) {
 					T_exp e1 = dst->u.MEM->u.BINOP.right, e2 = src;
 					munchExp(e1); munchExp(e2);
 					int c = dst->u.MEM->u.BINOP.left->u.CONST;
-					emit(AS_Move(String_format("mov [`s0 + %d],`s1\n", c),
+					emit(AS_Move(String_format("movl [`s0 + %d],`s1\n", c),
 							NULL, Temp_TempList(munchExp(e1), 
 								  Temp_TempList(munchExp(e2), NULL))));
 				} else 
 				if (src->kind == T_MEM) {
 					T_exp e1 = dst->u.MEM, e2 = src;
 					munchExp(e1); munchExp(e2);
-					emit(AS_Move(String_format("mov [`s0],`s1\n"),
+					emit(AS_Move(String_format("movl [`s0],`s1\n"),
 							NULL, Temp_TempList(munchExp(e1), 
 								  Temp_TempList(munchExp(e2), NULL))));
 				} else {
 					T_exp e1 = dst->u.MEM, e2 = src;
 					munchExp(e1); munchExp(e2);
-					emit(AS_Move(String_format("mov [`s0],`s1\n"),
+					emit(AS_Move(String_format("movl [`s0],`s1\n"),
 							NULL, Temp_TempList(munchExp(e1), 
 								  Temp_TempList(munchExp(e2), NULL))));
 				}
@@ -242,7 +242,7 @@ static void munchStm(T_stm stm) {
 			if (dst->kind == T_TEMP) {
 				T_exp e2 = src;
 				munchExp(e2);
-				emit(AS_Move(String_format("mov `d0,`s0\n"),
+				emit(AS_Move(String_format("movl `d0,`s0\n"),
 							 Temp_TempList(munchExp(dst), NULL),
 								  Temp_TempList(munchExp(e2), NULL)));
 			} else

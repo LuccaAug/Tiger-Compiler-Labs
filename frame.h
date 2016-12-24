@@ -49,6 +49,7 @@ Temp_temp F_ESI(void);
 Temp_temp F_ZERO(void);
 Temp_temp F_RA(void);
 Temp_temp F_RV(void);
+Temp_tempList F_CallerSave(void);
 F_frame F_newFrame(Temp_label name, U_boolList formals);
 T_exp F_externalCall(string s, T_expList args);
 F_frag F_string(Temp_label lab, string str);

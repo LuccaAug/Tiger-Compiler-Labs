@@ -188,6 +188,10 @@ Temp_temp F_EDI(void) {
     return edi;
 }
 
+Temp_tempList F_CallerSave(void) {
+    return Temp_TempList(F_EAX(), Temp_TempList(F_EDX(), Temp_TempList(F_ECX(), NULL)));
+}
+
 T_exp F_Exp(F_access access, T_exp framePtr) {
     if (access->kind == inFrame) 
         return T_Mem(T_Binop(T_plus, framePtr, T_Const(access->u.offset)));
@@ -225,14 +229,14 @@ T_stm F_procEntryExit1(F_frame frame, T_stm stm) {
 static Temp_tempList registers = NULL;
 
 void precolor() {
-    Temp_enter(F_tempMap, F_EAX(), "%%eax");
-    Temp_enter(F_tempMap, F_EBX(), "%%ebx");
-    Temp_enter(F_tempMap, F_ECX(), "%%ecx");
-    Temp_enter(F_tempMap, F_EDX(), "%%edx");
-    Temp_enter(F_tempMap, F_ESI(), "%%esi");
-    Temp_enter(F_tempMap, F_EDI(), "%%edi");
-    Temp_enter(F_tempMap, F_EBP(), "%%ebp");
-    Temp_enter(F_tempMap, F_ESP(), "%%esp");
+    Temp_enter(F_tempMap, F_EAX(), "%eax");
+    Temp_enter(F_tempMap, F_EBX(), "%ebx");
+    Temp_enter(F_tempMap, F_ECX(), "%ecx");
+    Temp_enter(F_tempMap, F_EDX(), "%edx");
+    Temp_enter(F_tempMap, F_ESI(), "%esi");
+    Temp_enter(F_tempMap, F_EDI(), "%edi");
+    Temp_enter(F_tempMap, F_EBP(), "%ebp");
+    Temp_enter(F_tempMap, F_ESP(), "%esp");
 }
 
 Temp_tempList F_registers() {
