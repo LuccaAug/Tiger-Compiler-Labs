@@ -121,7 +121,6 @@ struct expty transExp(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_
             return expTy(Tr_stringExp(e->u.stringg), Ty_String());
         }
         case A_callExp: {
-        	// printf("A_callExp %s\n", S_name(e->u.call.func));
             E_enventry f = S_look(venv, e->u.call.func);
             // A_expList args = NULL;
 			Tr_expList argList = NULL;
@@ -638,11 +637,11 @@ F_fragList SEM_transProg(A_exp exp){
     loop = 0;
     S_enter(tenv, S_Symbol("int"), Ty_Int());
     S_enter(tenv, S_Symbol("string"), Ty_String());
-    S_enter(venv, S_Symbol("getchar"), E_FunEntry(Tr_outermost(), Temp_newlabel(), NULL, Ty_String()));
-    S_enter(venv, S_Symbol("ord"), E_FunEntry(Tr_outermost(), Temp_newlabel(), Ty_TyList(Ty_String(), NULL), Ty_Int()));
-    S_enter(venv, S_Symbol("print"), E_FunEntry(Tr_outermost(), Temp_newlabel(), Ty_TyList(Ty_String(), NULL), Ty_Void()));
-    S_enter(venv, S_Symbol("printi"), E_FunEntry(Tr_outermost(), Temp_newlabel(), Ty_TyList(Ty_Int(), NULL), Ty_Void()));
-    S_enter(venv, S_Symbol("chr"), E_FunEntry(Tr_outermost(), Temp_newlabel(), Ty_TyList(Ty_Int(), NULL), Ty_String()));
+    S_enter(venv, S_Symbol("getchar"), E_FunEntry(Tr_outermost(), Temp_namedlabel("getchar"), NULL, Ty_String()));
+    S_enter(venv, S_Symbol("ord"), E_FunEntry(Tr_outermost(), Temp_namedlabel("ord"), Ty_TyList(Ty_String(), NULL), Ty_Int()));
+    S_enter(venv, S_Symbol("print"), E_FunEntry(Tr_outermost(), Temp_namedlabel("print"), Ty_TyList(Ty_String(), NULL), Ty_Void()));
+    S_enter(venv, S_Symbol("printi"), E_FunEntry(Tr_outermost(), Temp_namedlabel("printi"), Ty_TyList(Ty_Int(), NULL), Ty_Void()));
+    S_enter(venv, S_Symbol("chr"), E_FunEntry(Tr_outermost(), Temp_namedlabel("chr"), Ty_TyList(Ty_Int(), NULL), Ty_String()));
 
 
     Tr_level outermost = Tr_outermost();

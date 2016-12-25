@@ -173,7 +173,7 @@ static struct Cx unCx(Tr_exp e){
 
 Tr_exp Tr_simpleVar(Tr_access ac, Tr_level l) {
     T_exp addr = T_Temp(F_EBP()); /*addr is frame point*/
-    while (/*l && */l != ac->level->parent) { /* until find the level which def the var */
+    while (l != ac->level) { /* until find the level which def the var */
         F_access sl = F_formals(l->frame)->head;
         addr = F_Exp(sl, addr);
         l = l->parent;
@@ -224,7 +224,7 @@ Tr_exp Tr_nilExp() {
         nilTemp = Temp_newtemp(); /*use Temp_temp for nil due to compatible record type*/
         /*??? why init nil record 0 SIZE*/
         T_stm alloc = T_Move(T_Temp(nilTemp),
-                             F_externalCall(String("initRecord"), T_ExpList(T_Const(0), NULL)));
+                             F_externalCall(String("allocRecord"), T_ExpList(T_Const(0), NULL)));
         return Tr_Ex(T_Eseq(alloc, T_Temp(nilTemp)));
     }
     return Tr_Ex(T_Temp(nilTemp));
@@ -239,7 +239,7 @@ Tr_exp Tr_recordExp(int n, Tr_expList l) {
     Temp_temp r = Temp_newtemp();
     /*alloc n * WORD-SIZE mem*/
     T_stm alloc = T_Move(T_Temp(r),
-                         F_externalCall(String("initRecord"), T_ExpList(T_Const(n * F_WORD_SIZE), NULL)));
+                         F_externalCall(String("allocRecord"), T_ExpList(T_Const(n * F_WORD_SIZE), NULL)));
 
     int i = n - 1;
     T_stm seq = T_Move(T_Mem(T_Binop(T_plus, T_Temp(r), T_Const(i-- * F_WORD_SIZE))), 
@@ -433,7 +433,7 @@ static T_expList Tr_expList_convert(Tr_expList l) {
 
 Tr_exp Tr_callExp(Temp_label label, Tr_level fun, Tr_level call, Tr_expList * l, Ty_ty result) {
     T_expList args = NULL;
-    Tr_expList_prepend(Tr_StaticLink(call, fun), l); /* pass the static-link as the first para */
+    //Tr_expList_prepend(Tr_StaticLink(call, fun), l); /* pass the static-link as the first para */
     args = Tr_expList_convert(*l);
     if (result->kind == Ty_void) 
         return Tr_Ex(T_Call(T_Name(label), args));
@@ -465,10 +465,10 @@ static patchList joinPatch(patchList fir, patchList scd) {
 
 F_fragList Tr_getResult() {/*link stringFragList -> fragList */
     F_fragList cur = NULL, prev = NULL;
-    for (cur = stringFragList; cur; cur = cur->tail)
+    for (cur = fragList; cur; cur = cur->tail)
         prev = cur;
-    if (prev) prev->tail = fragList;
-    return stringFragList ? stringFragList : fragList;
+    if (prev) prev->tail = stringFragList;
+    return fragList;
 }
 
 /*******STACK-FRAME*******/
@@ -521,7 +521,7 @@ static Tr_accessList makeFormalAccessList(Tr_level l) {
 static Tr_level outer = NULL;
 Tr_level Tr_outermost(void) {
     /* the outest level, like global-env */
-    if (!outer) outer = Tr_newLevel(NULL, Temp_newlabel(), NULL);
+    if (!outer) outer = Tr_newLevel(NULL, Temp_namedlabel("tigermain"), NULL);
     return outer;
 }
 

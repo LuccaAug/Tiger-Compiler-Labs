@@ -36,17 +36,19 @@ static void doProc(FILE *out, F_frame frame, T_stm body)
 
  stmList = C_linearize(body);
  stmList = C_traceSchedule(C_basicBlocks(stmList));
- // printStmList(stdout, stmList);
+ printStmList(stdout, stmList);
  iList  = F_codegen(frame, stmList); /* 9 */
 
  struct RA_result ra = RA_regAlloc(frame, iList);  /* 10, 11 */
 
- fprintf(out, "BEGIN function\n");
+ AS_print(out, iList->head, NULL);
+
  fprintf(out, "pushl %%ebp\nmovl %%esp, %%ebp\nsubl $64, %%esp\n");
- AS_printInstrList (out, iList,
+
+ AS_printInstrList (out, iList->tail,
                        Temp_layerMap(F_tempMap,ra.coloring));
- fprintf(out, "movl %%ebp, %%esp\npopl %%ebp\nret\n");
- fprintf(out, "END function\n\n");
+ fprintf(out, "leave\nret\n");
+
 }
 
 int main(int argc, string *argv)
@@ -76,9 +78,16 @@ int main(int argc, string *argv)
    sprintf(outfile, "%s.s", argv[1]);
    out = fopen(outfile, "w");
    /* Chapter 8, 9, 10, 11 & 12 */
+   fprintf(out, ".text\n");
+   fprintf(out, ".global tigermain\n");
+   fprintf(out, ".type tigermain, @function\n");
    for (;frags;frags=frags->tail)
-     if (frags->head->kind == F_procFrag) 
+     if (frags->head->kind == F_procFrag) {
        doProc(out, frags->head->u.proc.frame, frags->head->u.proc.body);
+       if (frags->tail && frags->tail->head->kind == F_stringFrag) {
+          fprintf(out, ".section .rodata\n");
+       }
+     }
      else if (frags->head->kind == F_stringFrag) 
        fprintf(out, "%s\n", frags->head->u.stringg.str);
 

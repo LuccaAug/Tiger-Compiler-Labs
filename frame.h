@@ -6,6 +6,7 @@
 
 #include "temp.h"
 #include "tree.h"
+#include "assem.h"
 
 typedef struct F_frame_ *F_frame;
 typedef struct F_access_ *F_access;
@@ -56,6 +57,6 @@ F_frag F_string(Temp_label lab, string str);
 F_frag F_newProcFrag(T_stm body, F_frame frame);
 T_stm F_procEntryExit1(F_frame frame, T_stm stm);
 // AS_instrList F_procEntryExit2(AS_instrList body);
-// AS_proc F_procEntryExit3(F_frame frame, AS_instrList body);
+// void F_procEntryExit3(AS_instrList *body);
 
 #endif

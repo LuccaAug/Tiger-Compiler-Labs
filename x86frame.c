@@ -220,10 +220,10 @@ T_stm F_procEntryExit1(F_frame frame, T_stm stm) {
 //     //TO DO:
 // }
 
-// AS_proc F_procEntryExit3(F_frame frame, AS_instrList body) {
-//     string p = "pushl %%ebp\nmovl %%esp, %%ebp\nsubl $64, %%esp\n";
-//     string e = "movl %%ebp, %%esp\npopl %%ebp\nret\n";
-//     return AS_Proc(p, body, e);
+// void F_procEntryExit3(AS_instrList *body) {
+//     AS_instr prologue = AS_Oper("pushl %%ebp\nmovl %%esp, %%ebp\nsubl $64, %%esp\n", NULL, NULL, NULL);
+//     AS_instr epilogue = AS_Oper("leave\nret\n", NULL, NULL, NULL);
+//     *body = AS_InstrList(prologue, AS_InstrList(*body, AS_InstrList(epilogue, NULL)));
 // }
 
 static Temp_tempList registers = NULL;

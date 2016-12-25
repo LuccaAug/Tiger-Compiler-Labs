@@ -209,6 +209,21 @@ static combine_moveList(G_node u, G_node v) {
     }
 }
 
+static printAdjSet(G_graph g) {
+	G_nodeList nlist = G_nodes(g);
+	for (; nlist; nlist = nlist->tail) {
+		G_node n = nlist->head;
+		Temp_temp t = G_nodeInfo(n);
+		G_nodeList adj = G_look(adjSet, n);
+		// printf("node:%d\n", t->num);
+		for (; adj; adj = adj->tail) {
+			t = G_nodeInfo(adj->head);
+			// printf("%d\t", t->num);
+		}
+		printf("\n");
+	}
+}
+
 struct COL_result COL_color(G_graph fg, Temp_map initial, Temp_tempList regs) {
     //your code here.
     struct COL_result ret;
@@ -277,6 +292,7 @@ static void Build(struct Live_graph lg, Temp_map initial) {
         for (; vlist; vlist = vlist->tail) 
             AddEdge(u, vlist->head);
     }
+    printAdjSet(cg);
 }
 
 static void AddEdge(G_node u, G_node v) {
@@ -541,7 +557,6 @@ static void AssignColors() {
         int i, available = k;
         for (i = 0; i < k; i++) available -= okColors[i];
 
-        printf("AssignColors available color = %d\n", available);
 
         if (available == 0)
             addNode(&spilledNodes, n);
@@ -549,7 +564,6 @@ static void AssignColors() {
             addNode(&coloredNodes, n);
             for (i = 0; i < k; i++)
                 if (!okColors[i]) {
-                	printf("AssignColors node=%d color=%d\n", n, i);
                     ColorIt(n, i);
                     break;
                 }

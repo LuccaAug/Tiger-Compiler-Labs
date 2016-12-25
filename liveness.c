@@ -104,21 +104,20 @@ static void Liveness_Analysis(G_graph flow) {
 			Temp_tempList def = FG_def(n), use = FG_use(n),
 						  live_in = G_look(in, n), live_out = G_look(out, n);
 			// {// print info
-			// 	printf("\nliveness.c [Liveness_Analysis]\n");
-			// 	printf("	node:%d\n", n);
-			// 	printf("	def:");
+			// 	printf("\n\nnode:%d\n", n);
+			// 	printf("def:");
 			// 	Temp_tempList h = def;
 			// 	for (; h; h = h->tail)
 			// 		printf("%d, ", h->head->num);
-			// 	printf("\n	use:");
+			// 	printf("\nuse:");
 			// 	h = use;
 			// 	for (; h; h = h->tail)
 			// 		printf("%d, ", h->head->num);
-			// 	printf("\n	live_in:");
+			// 	printf("\nlive_in:");
 			// 	h = live_in;
 			// 	for (; h; h = h->tail)
 			// 		printf("%d, ", h->head->num);
-			// 	printf("\n	live_out:");
+			// 	printf("\nlive_out:");
 			// 	h = live_out;
 			// 	for (; h; h = h->tail)
 			// 		printf("%d, ", h->head->num);
@@ -126,20 +125,17 @@ static void Liveness_Analysis(G_graph flow) {
 			Temp_tempList tmp = minus(live_out, def);
 			Temp_tempList new_in = plus(use, tmp), new_out = NULL;
 			G_nodeList succ = G_succ(n);
-			// for (; succ; succ = succ->tail) {
-			// 	tmp = G_look(in, succ->head);
-			// 	new_out = plus(new_out, tmp);
-			// 	printf("\n	succ(s):");
-			// 	for (; tmp; tmp = tmp->tail)
-			// 		printf("%d, ", tmp->head->num);
+			for (; succ; succ = succ->tail) {
+				tmp = G_look(in, succ->head);
+				new_out = plus(new_out, tmp);
+			}
 					
-			// }
 			// {
-			// 	printf("\n	new_in:");
+			// 	printf("\nnew_in:");
 			// 	Temp_tempList h = new_in;
 			// 	for (; h; h = h->tail)
 			// 		printf("%d, ", h->head->num);
-			// 	printf("\n	new_out:");
+			// 	printf("\nnew_out:");
 			// 	h = new_out;
 			// 	for (; h; h = h->tail)
 			// 		printf("%d, ", h->head->num);
@@ -147,7 +143,6 @@ static void Liveness_Analysis(G_graph flow) {
 
 			G_enter(in, n, new_in);
 			G_enter(out, n, new_out);
-			// printf("new_in=%d live_in=%d new_out=%d live_out=%d\n", new_in, live_in, new_out, live_out);
 			if (!equal(new_in, live_in) || !equal(new_out, live_out)) done = 0;
 		}
 	}
@@ -195,8 +190,9 @@ static G_graph Conflict_Analysis(G_graph flow) {
 							Temp_tempList use = FG_use(n);
 							for (; use; use = use->tail) {
 								G_node c = TAB_look(regMap, use->head);
-								if (b != c) 
+								if (b != c) {
 									G_addEdge(a, b);
+								}
 							}
 						} break;
 						default:
@@ -233,5 +229,6 @@ struct Live_graph Live_liveness(G_graph flow) {
 	lg.cg = Conflict_Analysis(flow);
 	lg.fg = flow;
 	lg.moves = getMoveList(flow);
+	// G_show(stdout, G_nodes(lg.cg), NULL);
 	return lg;
 }
