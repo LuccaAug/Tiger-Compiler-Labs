@@ -39,11 +39,14 @@ static A_exp transform(A_exp forExp) {
 	A_pos p = forExp->pos;
 	S_symbol var = forExp->u.forr.var;
 	S_symbol lim = S_Symbol("_LIMIT");
+    A_var v = A_SimpleVar(p, var);
 	A_dec varDec = A_VarDec(p, var, NULL, forExp->u.forr.lo);
 	A_dec limDec = A_VarDec(p, lim, NULL, forExp->u.forr.hi);
 	A_decList decs = A_DecList(varDec, A_DecList(limDec, NULL));
 	A_exp test = A_OpExp(p, 7, A_VarExp(p, A_SimpleVar(p, var)), A_VarExp(p, A_SimpleVar(p, lim)));
-	A_exp w = A_WhileExp(p, test, forExp->u.forr.body);
+	A_exp inc = A_AssignExp(p, v, A_OpExp(p, 0, A_VarExp(p, v), A_IntExp(p, 1)));
+    A_expList tail = A_ExpList(inc, NULL);
+    A_exp w = A_WhileExp(p, test, A_SeqExp(p, A_ExpList(forExp->u.forr.body, tail)));
 
 	return A_LetExp(p, decs, w);
 }
