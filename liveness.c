@@ -106,11 +106,11 @@ static void Liveness_Analysis(G_graph flow) {
 			{// print info
 				AS_instr inst = G_nodeInfo(n);
 				if (inst->kind == I_OPER)
-					printf("\nassem:%s\n", inst->u.OPER.assem);
+					printf("\n\nassem:%s", inst->u.OPER.assem);
 				else if (inst->kind == I_LABEL)
-					printf("\nassem:%s\n", inst->u.LABEL.assem);
+					printf("\n\nassem:%s", inst->u.LABEL.assem);
 				else
-					printf("\nassem:%s\n", inst->u.MOVE.assem);
+					printf("\n\nassem:%s", inst->u.MOVE.assem);
 
 				printf("def:");
 				Temp_tempList h = def;
@@ -137,22 +137,23 @@ static void Liveness_Analysis(G_graph flow) {
 				new_out = plus(new_out, tmp);
 			}
 					
-			{
-				printf("\nnew_in:");
-				Temp_tempList h = new_in;
-				for (; h; h = h->tail)
-					printf("%d, ", h->head->num);
-				printf("\nnew_out:");
-				h = new_out;
-				for (; h; h = h->tail)
-					printf("%d, ", h->head->num);
-			}
+			// {
+			// 	printf("\nnew_in:");
+			// 	Temp_tempList h = new_in;
+			// 	for (; h; h = h->tail)
+			// 		printf("%d, ", h->head->num);
+			// 	printf("\nnew_out:");
+			// 	h = new_out;
+			// 	for (; h; h = h->tail)
+			// 		printf("%d, ", h->head->num);
+			// }
 
 			G_enter(in, n, new_in);
 			G_enter(out, n, new_out);
 			if (!equal(new_in, live_in) || !equal(new_out, live_out)) done = 0;
 		}
 	}
+
 }
 
 static void getAllRegs(G_graph g) {
@@ -195,17 +196,24 @@ static G_graph Conflict_Analysis(G_graph flow) {
 							break;
 						case I_MOVE: {
 							Temp_tempList use = FG_use(n);
-							for (; use; use = use->tail) {
-								G_node c = TAB_look(regMap, use->head);
-								if (b != c) {
-									G_addEdge(a, b);
-								}
-							}
+							G_node c = use ? TAB_look(regMap, use->head) : NULL;
+							if (b != c) 
+								G_addEdge(a, b);
 						} break;
 						default:
 							assert(0);
 					}
 			}
+		}
+	}
+	nlist = G_nodes(g);
+	for (; nlist; nlist = nlist->tail) {
+		Temp_temp t = G_nodeInfo(nlist->head);
+		printf("\n%d:\n\t", t->num);
+		G_nodeList adj = G_adj(nlist->head);
+		for (; adj; adj = adj->tail) {
+			t = G_nodeInfo(adj->head);
+			printf("%d, ", t->num);
 		}
 	}
 

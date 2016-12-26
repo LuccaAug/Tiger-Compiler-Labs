@@ -272,13 +272,20 @@ Tr_exp Tr_seqExp(Tr_expList l) {
 Tr_exp Tr_doneExp() { return Tr_Ex(T_Name(Temp_newlabel())); } /* doneExp may is a breakExp JUMP label */
 
 Tr_exp Tr_whileExp(Tr_exp test, Tr_exp body, Tr_exp done) {
-    Temp_label testl = Temp_newlabel(), bodyl = Temp_newlabel();
-    return Tr_Ex(T_Eseq(T_Jump(T_Name(testl), Temp_LabelList(testl, NULL)), 
-                        T_Eseq(T_Label(bodyl),
-                               T_Eseq(unNx(body),
-                                      T_Eseq(T_Label(testl),
-                                             T_Eseq(T_Cjump(T_eq, unEx(test), T_Const(0), unEx(done)->u.NAME, bodyl),
-                                                    T_Eseq(T_Label(unEx(done)->u.NAME), T_Const(0))))))));
+    Temp_label testl = Temp_newlabel(), bodyl = Temp_newlabel(), 
+               donel = unEx(done)->u.NAME;
+    return Tr_Nx(
+             T_Seq(
+               T_Label(testl),
+               T_Seq(
+                 T_Cjump(T_eq, unEx(test), T_Const(0), donel, bodyl),
+                 T_Seq(
+                   T_Label(bodyl),
+                   T_Seq(
+                     unNx(body),
+                     T_Seq(
+                        T_Jump(T_Name(testl), Temp_LabelList(testl, NULL)),
+                        T_Label(donel)))))));
 }
 
 Tr_exp Tr_assignExp(Tr_exp lval, Tr_exp exp) { return Tr_Nx(T_Move(unEx(lval), unEx(exp))); }

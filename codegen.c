@@ -167,7 +167,7 @@ static void munchStm(T_stm stm) {
 			Temp_temp left = munchExp(stm->u.CJUMP.left);
 			Temp_temp right = munchExp(stm->u.CJUMP.right);
 			emit(AS_Oper("cmp `s0,`s1\n", NULL, 
-				 		 Temp_TempList(left, Temp_TempList(right, NULL)), NULL));
+				 		 Temp_TempList(right, Temp_TempList(left, NULL)), NULL));
 			Temp_label t = stm->u.CJUMP.true;
 			switch (stm->u.CJUMP.op) {
 				case T_eq:
@@ -190,10 +190,10 @@ static void munchStm(T_stm stm) {
 					break;
 				default:
 					assert(0);
-				emit(AS_Oper(String_format("%s %s\n", jmp, Temp_labelstring(t)), 
+			}
+			emit(AS_Oper(String_format("%s %s\n", jmp, Temp_labelstring(t)), 
 							 NULL, NULL, 
 							 AS_Targets(Temp_LabelList(t, NULL))));
-			}
 		} break;
 		case T_MOVE: {
 			T_exp dst = stm->u.MOVE.dst, src = stm->u.MOVE.src;
@@ -229,10 +229,16 @@ static void munchStm(T_stm stm) {
 				}
 			} else
 			if (dst->kind == T_TEMP) {
-				T_exp e2 = src;
-				emit(AS_Move(String_format("movl `s0, `d0\n"),
-							 Temp_TempList(munchExp(dst), NULL),
-								  Temp_TempList(munchExp(e2), NULL)));
+				if (src->kind == T_CONST) {
+					int c = src->u.CONST;
+					emit(AS_Move(String_format("movl $%d, `d0\n", c),
+								 Temp_TempList(munchExp(dst), NULL), NULL));
+				} else {
+					T_exp e2 = src;
+					emit(AS_Move(String_format("movl `s0, `d0\n"),
+								 Temp_TempList(munchExp(dst), NULL),
+									  Temp_TempList(munchExp(e2), NULL)));
+				}
 			} else
 				assert(0);
 		} break;
