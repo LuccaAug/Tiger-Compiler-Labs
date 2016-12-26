@@ -67,7 +67,7 @@ static Temp_temp munchExp(T_exp exp) {
 				r = munchExp(e2);
 				Temp_temp t = munchExp(e1);
 				emit(AS_Oper(String_format("%s `s0, `d0\n", op), 
-					Temp_TempList(r, NULL), Temp_TempList(t, NULL), NULL));
+					Temp_TempList(r, NULL), Temp_TempList(t, Temp_TempList(r, NULL)), NULL));
 				return r;
 			}
 			assert(0);
@@ -230,7 +230,6 @@ static void munchStm(T_stm stm) {
 			} else
 			if (dst->kind == T_TEMP) {
 				T_exp e2 = src;
-				munchExp(e2);
 				emit(AS_Move(String_format("movl `s0, `d0\n"),
 							 Temp_TempList(munchExp(dst), NULL),
 								  Temp_TempList(munchExp(e2), NULL)));

@@ -416,7 +416,7 @@ struct expty transExp(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_
                                     result = Ty_Int();
                                 }
                             }
-                            Temp_label funLabel = Temp_newlabel();
+                            Temp_label funLabel = Temp_namedlabel(S_name(x->name));
                             Tr_level l = Tr_newLevel(level, funLabel, makeFormals(x->params));
                             S_enter(venv, x->name, E_FunEntry(l, funLabel, formals, result));
                         }

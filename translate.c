@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "string.h"
 #include "util.h"
 #include "symbol.h"
 #include "absyn.h"
@@ -405,9 +406,8 @@ Tr_exp Tr_ifExp(Tr_exp test, Tr_exp then, Tr_exp elsee) {
 }
 
 static Tr_exp Tr_StaticLink(Tr_level now, Tr_level def) {
-    /* get call-function's static-link */
-    T_exp addr = T_Temp(F_EBP());/* frame-point */
-    while(now && (now != def->parent)) { /* until find the level which def the function */
+    T_exp addr = T_Temp(F_EBP());
+    while(now && (now != def->parent)) {
         F_access sl = F_formals(now->frame)->head;
         addr = F_Exp(sl, addr);
         now = now->parent;
@@ -416,7 +416,6 @@ static Tr_exp Tr_StaticLink(Tr_level now, Tr_level def) {
 }
 
 static T_expList Tr_expList_convert(Tr_expList l) {
-    /*trans Tr_expList to T_expList*/
     T_expList h = NULL, t = NULL;
     for (; l; l = l->tail) {
         T_exp tmp = unEx(l->head);
@@ -431,9 +430,19 @@ static T_expList Tr_expList_convert(Tr_expList l) {
     return h;
 }
 
+static int needStaticLink(char *name) {
+    if (strstr(name, "getchar")) return 0;
+    if (strstr(name, "ord"))     return 0;
+    if (strstr(name, "print"))   return 0;
+    if (strstr(name, "printi"))  return 0;
+    if (strstr(name, "chr"))     return 0;
+    return 1;
+}
+
 Tr_exp Tr_callExp(Temp_label label, Tr_level fun, Tr_level call, Tr_expList * l, Ty_ty result) {
     T_expList args = NULL;
-    //Tr_expList_prepend(Tr_StaticLink(call, fun), l); /* pass the static-link as the first para */
+    if (needStaticLink(Temp_labelstring(label)))
+        Tr_expList_prepend(Tr_StaticLink(call, fun), l);
     args = Tr_expList_convert(*l);
     if (result->kind == Ty_void) 
         return Tr_Ex(T_Call(T_Name(label), args));
@@ -449,21 +458,19 @@ static patchList PatchList(Temp_label * h, patchList t) {
 }
 
 static void doPatch(patchList t, Temp_label label) {
-    /*for the list every item value the same label*/
     for (; t; t = t->tail) {
         *(t->head) = label;
     }
 }
 
 static patchList joinPatch(patchList fir, patchList scd) {
-    /*add patch-List in the tail*/
     if (!fir) return scd;
     for (; fir->tail; fir = fir->tail);
     fir->tail = scd;
     return fir;
 }
 
-F_fragList Tr_getResult() {/*link stringFragList -> fragList */
+F_fragList Tr_getResult() {
     F_fragList cur = NULL, prev = NULL;
     for (cur = fragList; cur; cur = cur->tail)
         prev = cur;
@@ -471,14 +478,12 @@ F_fragList Tr_getResult() {/*link stringFragList -> fragList */
     return fragList;
 }
 
-/*******STACK-FRAME*******/
 Tr_level Tr_newLevel(Tr_level p, Temp_label n, U_boolList f) {
     Tr_level l = checked_malloc(sizeof(*l));
     l->parent = p;
     l->name = n;
     l->frame = F_newFrame(n, U_BoolList(TRUE, f));
     l->formals = makeFormalAccessList(l);
-    /*display_l(l);*/
     return l;
 }
 
@@ -486,7 +491,6 @@ Tr_access Tr_allocLocal(Tr_level l, bool escape) {
     Tr_access a = checked_malloc(sizeof(*a));
     a->level = l;
     a->access = F_allocLocal(l->frame, escape);
-    /*display_ac(a);*/
     return a;
 }
 
@@ -502,9 +506,8 @@ Tr_accessList Tr_formals(Tr_level l) {
 }
 
 static Tr_accessList makeFormalAccessList(Tr_level l) {
- /* get the access-list from frame (ingnore the first one) */
     Tr_accessList head = NULL, tail = NULL;
-    F_accessList  acsl = F_formals(l->frame)->tail; /*ignore the first one due-to static-link*/
+    F_accessList  acsl = F_formals(l->frame)->tail;
     for (; acsl; acsl = acsl->tail) {
         Tr_access ac = Tr_Access(l, acsl->head);
         if (head) {
@@ -520,7 +523,6 @@ static Tr_accessList makeFormalAccessList(Tr_level l) {
 
 static Tr_level outer = NULL;
 Tr_level Tr_outermost(void) {
-    /* the outest level, like global-env */
     if (!outer) outer = Tr_newLevel(NULL, Temp_namedlabel("tigermain"), NULL);
     return outer;
 }
