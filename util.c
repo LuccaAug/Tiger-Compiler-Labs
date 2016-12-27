@@ -103,10 +103,10 @@ string String_format(const char *s, ...)
 }
 
 int needStaticLink(char *name) {
-    if (strstr(name, "getchar")) return 0;
-    if (strstr(name, "ord"))     return 0;
-    if (strstr(name, "print"))   return 0;
-    if (strstr(name, "printi"))  return 0;
-    if (strstr(name, "chr"))     return 0;
+    if (!strcmp(name, "getchar")) return 0;
+    if (!strcmp(name, "ord"))     return 0;
+    if (!strcmp(name, "print"))   return 0;
+    if (!strcmp(name, "printi"))  return 0;
+    if (!strcmp(name, "chr"))     return 0;
     return 1;
 }

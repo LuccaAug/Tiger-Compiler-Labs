@@ -78,7 +78,6 @@ Tr_expList Tr_ExpList(Tr_exp h, Tr_expList t) {
 }
 
 void Tr_expList_prepend(Tr_exp h, Tr_expList * l) {
-    /* add a newhead at a old expList, alter the point-content*/
     Tr_expList newhead = Tr_ExpList(h, NULL);
     newhead->tail = *l;
     *l = newhead;

@@ -142,10 +142,15 @@ static Temp_temp munchExp(T_exp exp) {
 			emit(AS_Oper("call `s0\n", NULL, 
 						 Temp_TempList(r, args), NULL));
 
-			if (needStaticLink(Temp_labelstring(exp->u.CALL.fun->u.NAME)))
-				emit(AS_Oper("popl %ecx\npopl %ecx\npopl %ecx\npopl %edx\n", F_CallerSave(), NULL, NULL));
-			else
-				emit(AS_Oper("popl %ecx\npopl %ecx\npopl %edx\n", F_CallerSave(), NULL, NULL));
+			T_expList tlist = exp->u.CALL.args;
+			for (; tlist; tlist = tlist->tail) 
+				emit(AS_Oper("popl %ecx\n", Temp_TempList(F_ECX(), NULL), NULL, NULL));
+			emit(AS_Oper("popl %ecx\npopl %edx\n", F_CallerSave(), NULL, NULL));
+
+			// if (needStaticLink(Temp_labelstring(exp->u.CALL.fun->u.NAME)))
+			// 	emit(AS_Oper("popl %ecx\npopl %ecx\npopl %ecx\npopl %edx\n", F_CallerSave(), NULL, NULL));
+			// else
+			// 	emit(AS_Oper("popl %ecx\npopl %ecx\npopl %edx\n", F_CallerSave(), NULL, NULL));
 			return r;
 		} break;
 		default:
@@ -254,6 +259,9 @@ static void munchStm(T_stm stm) {
 							Temp_TempList(munchExp(dst), NULL), 
 							Temp_TempList(munchExp(src->u.BINOP.left), NULL), NULL));
 					} 
+				} else if (src->kind == T_NAME) {
+					emit(AS_Move("movl $`s0, `d0\n", Temp_TempList(munchExp(dst), NULL),
+						Temp_TempList(munchExp(src), NULL)));
 				} else {
 					T_exp e2 = src;
 					emit(AS_Move(String_format("movl `s0, `d0\n"),

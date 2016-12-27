@@ -103,32 +103,32 @@ static void Liveness_Analysis(G_graph flow) {
 			G_node n = i->head;
 			Temp_tempList def = FG_def(n), use = FG_use(n),
 						  live_in = G_look(in, n), live_out = G_look(out, n);
-			{// print info
-				AS_instr inst = G_nodeInfo(n);
-				if (inst->kind == I_OPER)
-					printf("\n\nassem:%s", inst->u.OPER.assem);
-				else if (inst->kind == I_LABEL)
-					printf("\n\nassem:%s", inst->u.LABEL.assem);
-				else
-					printf("\n\nassem:%s", inst->u.MOVE.assem);
+			// {// print info
+			// 	AS_instr inst = G_nodeInfo(n);
+			// 	if (inst->kind == I_OPER)
+			// 		printf("\n\nassem:%s", inst->u.OPER.assem);
+			// 	else if (inst->kind == I_LABEL)
+			// 		printf("\n\nassem:%s", inst->u.LABEL.assem);
+			// 	else
+			// 		printf("\n\nassem:%s", inst->u.MOVE.assem);
 
-				printf("def:");
-				Temp_tempList h = def;
-				for (; h; h = h->tail)
-					printf("%d, ", h->head->num);
-				printf("\nuse:");
-				h = use;
-				for (; h; h = h->tail)
-					printf("%d, ", h->head->num);
-				printf("\nlive_in:");
-				h = live_in;
-				for (; h; h = h->tail)
-					printf("%d, ", h->head->num);
-				printf("\nlive_out:");
-				h = live_out;
-				for (; h; h = h->tail)
-					printf("%d, ", h->head->num);
-			}
+			// 	printf("def:");
+			// 	Temp_tempList h = def;
+			// 	for (; h; h = h->tail)
+			// 		printf("%d, ", h->head->num);
+			// 	printf("\nuse:");
+			// 	h = use;
+			// 	for (; h; h = h->tail)
+			// 		printf("%d, ", h->head->num);
+			// 	printf("\nlive_in:");
+			// 	h = live_in;
+			// 	for (; h; h = h->tail)
+			// 		printf("%d, ", h->head->num);
+			// 	printf("\nlive_out:");
+			// 	h = live_out;
+			// 	for (; h; h = h->tail)
+			// 		printf("%d, ", h->head->num);
+			// }
 			Temp_tempList tmp = minus(live_out, def);
 			Temp_tempList new_in = plus(use, tmp), new_out = NULL;
 			G_nodeList succ = G_succ(n);
