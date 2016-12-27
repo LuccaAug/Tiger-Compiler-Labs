@@ -101,3 +101,12 @@ string String_format(const char *s, ...)
 	va_end(ap);
 	return result;
 }
+
+int needStaticLink(char *name) {
+    if (strstr(name, "getchar")) return 0;
+    if (strstr(name, "ord"))     return 0;
+    if (strstr(name, "print"))   return 0;
+    if (strstr(name, "printi"))  return 0;
+    if (strstr(name, "chr"))     return 0;
+    return 1;
+}

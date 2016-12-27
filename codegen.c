@@ -141,7 +141,11 @@ static Temp_temp munchExp(T_exp exp) {
 			Temp_tempList args = munchArgs(0, exp->u.CALL.args);
 			emit(AS_Oper("call `s0\n", NULL, 
 						 Temp_TempList(r, args), NULL));
-			emit(AS_Oper("popl %ecx\npopl %ecx\npopl %edx\n", F_CallerSave(), NULL, NULL));
+
+			if (needStaticLink(Temp_labelstring(exp->u.CALL.fun->u.NAME)))
+				emit(AS_Oper("popl %ecx\npopl %ecx\npopl %ecx\npopl %edx\n", F_CallerSave(), NULL, NULL));
+			else
+				emit(AS_Oper("popl %ecx\npopl %ecx\npopl %edx\n", F_CallerSave(), NULL, NULL));
 			return r;
 		} break;
 		default:

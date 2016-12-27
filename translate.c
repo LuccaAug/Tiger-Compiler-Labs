@@ -437,15 +437,6 @@ static T_expList Tr_expList_convert(Tr_expList l) {
     return h;
 }
 
-static int needStaticLink(char *name) {
-    if (strstr(name, "getchar")) return 0;
-    if (strstr(name, "ord"))     return 0;
-    if (strstr(name, "print"))   return 0;
-    if (strstr(name, "printi"))  return 0;
-    if (strstr(name, "chr"))     return 0;
-    return 1;
-}
-
 Tr_exp Tr_callExp(Temp_label label, Tr_level fun, Tr_level call, Tr_expList * l, Ty_ty result) {
     T_expList args = NULL;
     if (needStaticLink(Temp_labelstring(label)))
