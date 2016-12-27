@@ -44,9 +44,12 @@ static void doProc(FILE *out, F_frame frame, T_stm body)
  AS_print(out, iList->head, NULL);
 
  fprintf(out, "pushl %%ebp\nmovl %%esp, %%ebp\nsubl $64, %%esp\n");
+ fprintf(out, "pushl %%ebx\npushl %%esi\npushl %%edi\n");
 
  AS_printInstrList (out, iList->tail,
                        Temp_layerMap(F_tempMap,ra.coloring));
+
+ fprintf(out, "popl %%edi\npopl %%esi\npopl %%ebx\n");
  fprintf(out, "leave\nret\n");
 
 }

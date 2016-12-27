@@ -240,7 +240,7 @@ Tr_exp Tr_recordExp(int n, Tr_expList l) {
     Temp_temp r = Temp_newtemp();
     /*alloc n * WORD-SIZE mem*/
     T_stm alloc = T_Move(T_Temp(r),
-                         F_externalCall(String("allocRecord"), T_ExpList(T_Const(n * F_WORD_SIZE), NULL)));
+                         T_Eseq(T_Exp(F_externalCall(String("allocRecord"), T_ExpList(T_Const(n * F_WORD_SIZE), NULL))), T_Temp(F_EAX())));
 
     int i = n - 1;
     T_stm seq = T_Move(T_Mem(T_Binop(T_plus, T_Temp(r), T_Const(i-- * F_WORD_SIZE))), 

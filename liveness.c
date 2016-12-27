@@ -206,16 +206,16 @@ static G_graph Conflict_Analysis(G_graph flow) {
 			}
 		}
 	}
-	nlist = G_nodes(g);
-	for (; nlist; nlist = nlist->tail) {
-		Temp_temp t = G_nodeInfo(nlist->head);
-		printf("\n%d:\n\t", t->num);
-		G_nodeList adj = G_adj(nlist->head);
-		for (; adj; adj = adj->tail) {
-			t = G_nodeInfo(adj->head);
-			printf("%d, ", t->num);
-		}
-	}
+	// nlist = G_nodes(g);
+	// for (; nlist; nlist = nlist->tail) {
+	// 	Temp_temp t = G_nodeInfo(nlist->head);
+	// 	printf("\n%d:\n\t", t->num);
+	// 	G_nodeList adj = G_adj(nlist->head);
+	// 	for (; adj; adj = adj->tail) {
+	// 		t = G_nodeInfo(adj->head);
+	// 		printf("%d, ", t->num);
+	// 	}
+	// }
 
 	return g;
 }
