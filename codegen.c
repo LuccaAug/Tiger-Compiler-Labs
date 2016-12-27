@@ -39,7 +39,7 @@ static Temp_temp munchExp(T_exp exp) {
 					op = "subl";
 				} break;
 				case T_mul: {
-					op = "mull";
+					op = "imull";
 				} break;
 				case T_div: {
 					op = "divl";
@@ -272,7 +272,16 @@ static Temp_tempList munchArgs(unsigned int i, T_expList args) {
 		return NULL;
 
 	Temp_tempList tail = munchArgs(i + 1, args->tail);
-	Temp_temp r = munchExp(args->head);
+	Temp_temp r;
+
+	if (args->head->kind == T_NAME) {
+		r = Temp_newtemp();
+		Temp_temp s = munchExp(args->head);
+		emit(AS_Move("movl $`s0, `d0\n", Temp_TempList(r, NULL),
+			Temp_TempList(s, NULL)));
+	} else {
+		r = munchExp(args->head);
+	}
 	emit(AS_Oper(String("pushl `s0\n"), NULL, Temp_TempList(r, NULL), NULL));	
 
 	return Temp_TempList(r, tail);
