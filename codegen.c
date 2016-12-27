@@ -42,7 +42,17 @@ static Temp_temp munchExp(T_exp exp) {
 					op = "imull";
 				} break;
 				case T_div: {
-					op = "divl";
+					r = munchExp(exp->u.BINOP.left);
+					emit(AS_Oper("movl `s0, `d0\n", Temp_TempList(F_EAX(), NULL),
+						Temp_TempList(r, NULL), NULL));
+					emit(AS_Oper("cltd\n", F_CLTD(), 
+						Temp_TempList(F_EAX(), NULL), NULL));
+					Temp_temp s = munchExp(exp->u.BINOP.right);
+					emit(AS_Oper("idivl `s0\n", F_CLTD(), 
+						Temp_TempList(s, F_CLTD()), NULL));
+					r = Temp_newtemp();
+					emit(AS_Move("movl `s0, `d0\n", Temp_TempList(r, NULL),
+						Temp_TempList(F_EAX(), NULL)));
 				} break;
 				default:
 					assert(0);

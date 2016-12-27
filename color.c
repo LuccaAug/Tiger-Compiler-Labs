@@ -154,8 +154,18 @@ static void makeTempMap(G_graph cg, Temp_map initial) {
         PutDegree(n, 0);
         Temp_temp t = G_nodeInfo(n);
         TAB_enter(tempMap, t, n);
-        string r = TAB_look(tab, t);
-        if (r) precolored = G_NodeList(n, precolored);
+        string r = Temp_look(initial, t);
+        if (r) {
+            precolored = G_NodeList(n, precolored);
+            printf("precolored %s %d\n", r, t->num);
+            if (!strcmp(r, "%eax")) ColorIt(n, 0);
+            else if (!strcmp(r, "%ebx")) ColorIt(n, 1);
+            else if (!strcmp(r, "%ecx")) ColorIt(n, 2);
+            else if (!strcmp(r, "%edx")) ColorIt(n, 3);
+            else if (!strcmp(r, "%esi")) ColorIt(n, 4);
+            else if (!strcmp(r, "%edi")) ColorIt(n, 5);
+            else ColorIt(n, 0);
+        }
     }
 }
 
@@ -550,6 +560,8 @@ static void AssignColors() {
             G_node w = GetAlias(nlist->head);
             if (G_inNodeList(w, coloredNodes) ||
                 G_inNodeList(w, precolored)) {
+                Temp_temp t = G_nodeInfo(w);
+                printf("AssignColors %d\n", t->num);
                 okColors[GetColor(w)] = 1;
             }
         }

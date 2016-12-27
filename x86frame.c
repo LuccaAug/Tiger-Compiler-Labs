@@ -188,6 +188,10 @@ Temp_temp F_EDI(void) {
     return edi;
 }
 
+Temp_tempList F_CLTD(void) {
+    return Temp_TempList(F_EDX(), Temp_TempList(F_EAX(), NULL));
+}
+
 Temp_tempList F_CallerSave(void) {
     return Temp_TempList(F_EDX(), Temp_TempList(F_ECX(), NULL));
 }
@@ -237,6 +241,14 @@ void precolor() {
     Temp_enter(F_tempMap, F_EDI(), "%edi");
     Temp_enter(F_tempMap, F_EBP(), "%ebp");
     Temp_enter(F_tempMap, F_ESP(), "%esp");
+    printf("eax is %d\n", eax->num);
+    printf("ebx is %d\n", ebx->num);
+    printf("ecx is %d\n", ecx->num);
+    printf("edx is %d\n", edx->num);
+    printf("esi is %d\n", esi->num);
+    printf("edi is %d\n", edi->num);
+    printf("ebp is %d\n", ebp->num);
+    printf("esp is %d\n", esp->num);
 }
 
 Temp_tempList F_registers() {
