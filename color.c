@@ -225,10 +225,10 @@ static printAdjSet(G_graph g) {
 		G_node n = nlist->head;
 		Temp_temp t = G_nodeInfo(n);
 		G_nodeList adj = G_look(adjSet, n);
-		// printf("node:%d\n", t->num);
+		printf("node:%d\n", t->num);
 		for (; adj; adj = adj->tail) {
 			t = G_nodeInfo(adj->head);
-			// printf("%d\t", t->num);
+			printf("%d\t", t->num);
 		}
 		printf("\n");
 	}
@@ -254,9 +254,11 @@ struct COL_result COL_color(G_graph fg, Temp_map initial, Temp_tempList regs) {
     AssignColors();
 
     if (spilledNodes) {
+        printf("bad news\n");
     	for (; spilledNodes; spilledNodes = spilledNodes->tail)
     		ret.spills = Temp_TempList(G_nodeInfo(spilledNodes->head), ret.spills);
-    }
+    } else
+        printf("good news\n");
 
     Temp_temp regArray[k];
 	int i = 0;
@@ -324,7 +326,10 @@ static void MakeWorklist(G_graph g, Temp_tempList r) {
     G_nodeList nlist = G_nodes(g);
     for (; nlist; nlist = nlist->tail) {
         G_node n = nlist->head;
+        Temp_temp t = G_nodeInfo(n);
         int d = degree(n);
+        printf("node:%d degree:%d MoveRelated:%d\n", 
+            t->num, d, MoveRelated(n));
         if (d >= k) 
         	addNode(&spillWorklist, n);
         else if (MoveRelated(n))
@@ -429,6 +434,13 @@ static void EnableMoves(G_nodeList nlist) {
     }
 }
 
+static int ebpRalated(G_node u, G_node v) {
+    Temp_temp tu = G_nodeInfo(u), tv = G_nodeInfo(v);
+    if (tu == F_EBP() || tv == F_EBP())
+        return 1;
+    return 0;
+}
+
 static void Coalesce() {
     AS_instr m = worklistMoves->head;
     delMove(&worklistMoves, m);
@@ -444,7 +456,7 @@ static void Coalesce() {
         addMove(&coalescedMoves, m);
         AddWorkList(u);
     }
-    else if (G_inNodeList(v, precolored) || inAdjSet(u, v)) {
+    else if (G_inNodeList(v, precolored) || inAdjSet(u, v) || ebpRalated(u, v)) {
     	//both are precolored or conflicted
         addMove(&constrainedMoves, m);
         AddWorkList(u);
@@ -552,6 +564,7 @@ static void SelectSpill() {
 static void AssignColors() {
     while (selectStack) {
         G_node n = selectStack->head;
+        Temp_temp t = G_nodeInfo(n);
         delNode(&selectStack, n);
         int okColors[k];
         memset(okColors, 0, sizeof(okColors));
@@ -561,7 +574,6 @@ static void AssignColors() {
             if (G_inNodeList(w, coloredNodes) ||
                 G_inNodeList(w, precolored)) {
                 Temp_temp t = G_nodeInfo(w);
-                printf("AssignColors %d\n", t->num);
                 okColors[GetColor(w)] = 1;
             }
         }
@@ -585,6 +597,8 @@ static void AssignColors() {
     G_nodeList nlist = coalescedNodes;
     for (; nlist; nlist = nlist->tail) {
         G_node n = nlist->head, a = GetAlias(n);
+        Temp_temp t = G_nodeInfo(n), p = G_nodeInfo(a);
+        if (t->num == 129) printf("129 fuck with %d\n", p->num);
         ColorIt(n, GetColor(a));
     }
 }

@@ -82,6 +82,39 @@ static int equal(Temp_tempList a, Temp_tempList b) {
 	return 1;
 }
 
+static void watch_lg(G_graph g) {
+	G_nodeList nlist = G_nodes(g);
+	for (; nlist; nlist = nlist->tail) {
+		G_node n = nlist->head;
+		AS_instr inst = G_nodeInfo(n);
+		Temp_tempList def = FG_def(n), use = FG_use(n),
+					  live_in = G_look(in, n), live_out = G_look(out, n);
+		if (inst->kind == I_OPER)
+			printf("\n\nassem:%s", inst->u.OPER.assem);
+		else if (inst->kind == I_LABEL)
+			printf("\n\nassem:%s", inst->u.LABEL.assem);
+		else
+			printf("\n\nassem:%s", inst->u.MOVE.assem);
+
+		printf("def:");
+		Temp_tempList h = def;
+		for (; h; h = h->tail)
+			printf("%d, ", h->head->num);
+		printf("\nuse:");
+		h = use;
+		for (; h; h = h->tail)
+			printf("%d, ", h->head->num);
+		printf("\nlive_in:");
+		h = live_in;
+		for (; h; h = h->tail)
+			printf("%d, ", h->head->num);
+		printf("\nlive_out:");
+		h = live_out;
+		for (; h; h = h->tail)
+			printf("%d, ", h->head->num);
+	}
+}
+
 static void Liveness_initial(G_graph flow) {
 	in = G_empty();
 	out = G_empty();
@@ -153,7 +186,7 @@ static void Liveness_Analysis(G_graph flow) {
 			if (!equal(new_in, live_in) || !equal(new_out, live_out)) done = 0;
 		}
 	}
-
+	// watch_lg(flow);
 }
 
 static void getAllRegs(G_graph g) {

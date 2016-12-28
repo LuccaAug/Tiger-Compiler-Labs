@@ -53,6 +53,7 @@ static Temp_temp munchExp(T_exp exp) {
 					r = Temp_newtemp();
 					emit(AS_Move("movl `s0, `d0\n", Temp_TempList(r, NULL),
 						Temp_TempList(F_EAX(), NULL)));
+					return r;
 				} break;
 				default:
 					assert(0);
