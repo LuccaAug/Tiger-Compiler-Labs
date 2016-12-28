@@ -54,11 +54,6 @@ struct patchList_ {
     Temp_label * head; /*??? why save a point-to-Temp_label (because) */
     patchList tail;
 };
-
-struct Tr_expList_ {
-    Tr_exp head;
-    Tr_expList tail;
-};
 static Tr_exp Tr_Ex(T_exp);
 static Tr_exp Tr_Nx(T_stm);
 static Tr_exp Tr_Cx(patchList, patchList, T_stm);
@@ -256,8 +251,8 @@ Tr_exp Tr_recordExp(int n, Tr_expList l) {
 }
 
 Tr_exp Tr_arrayExp(Tr_exp size, Tr_exp init) {
-    return Tr_Ex(F_externalCall(String("initArray"), 
-                                T_ExpList(unEx(size), T_ExpList(unEx(init), NULL))));
+    return Tr_Ex(T_Eseq(T_Exp(F_externalCall(String("initArray"), 
+                                T_ExpList(unEx(size), T_ExpList(unEx(init), NULL)))), T_Temp(F_EAX())));
 }
 
 Tr_exp Tr_seqExp(Tr_expList l) {

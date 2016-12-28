@@ -126,7 +126,7 @@ struct expty transExp(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_
         case A_callExp: {
             E_enventry f = S_look(venv, e->u.call.func);
             // A_expList args = NULL;
-			Tr_expList argList = NULL;
+			Tr_expList argList = NULL, cur = NULL;
 			// for (args = e->u.call.args; args; args = args->tail) {
 			// 	struct expty arg = transExp(level, exp, venv, tenv, args->head);
 			// 	Tr_expList_prepend(arg.exp, &argList);			
@@ -140,7 +140,14 @@ struct expty transExp(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_
                         break;
                     }
                     struct expty x = transExp(level, exp, venv, tenv, arg->head);
-                    Tr_expList_prepend(x.exp, &argList);
+                    // Tr_expList_prepend(x.exp, &argList);
+                    if (!argList) {
+                        argList = Tr_ExpList(x.exp, NULL);
+                        cur = argList;
+                    } else {
+                        cur->tail = Tr_ExpList(x.exp, NULL);
+                        cur = cur->tail;
+                    }
                     if (actual_ty(x.ty)->kind != actual_ty(formal->head)->kind) {
                         // printf("%d %d\n", x.ty->kind, actual_ty(formal->head)->kind);
                         EM_error(arg->head->pos, "para type mismatch");

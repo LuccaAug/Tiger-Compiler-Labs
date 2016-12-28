@@ -26,6 +26,11 @@ typedef struct Tr_exp_ * Tr_exp;
 typedef struct Tr_expList_ * Tr_expList;
 typedef struct patchList_ *patchList;
 
+struct Tr_expList_ {
+    Tr_exp head;
+    Tr_expList tail;
+};
+
 Tr_exp Tr_arithExp(A_oper, Tr_exp, Tr_exp);
 Tr_exp Tr_simpleVar(Tr_access, Tr_level);
 Tr_exp Tr_fieldVar(Tr_exp, int);
@@ -47,6 +52,7 @@ Tr_exp Tr_eqStringExp(A_oper, Tr_exp, Tr_exp);
 Tr_exp Tr_eqRef(A_oper, Tr_exp, Tr_exp);
 Tr_exp Tr_relExp(A_oper, Tr_exp, Tr_exp);
 Tr_exp Tr_ifExp(Tr_exp, Tr_exp, Tr_exp);
+Tr_expList Tr_ExpList(Tr_exp h, Tr_expList t);
 
 void Tr_expList_prepend(Tr_exp, Tr_expList *);
 void Tr_procEntryExit(Tr_level, Tr_exp, S_symbol);
