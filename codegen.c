@@ -147,16 +147,16 @@ static Temp_temp munchExp(T_exp exp) {
 			return r;
 		} break;
 		case T_CALL: {
-			emit(AS_Oper("pushl %edx\npushl %ecx\n", NULL, F_CallerSave(), NULL));
+			// emit(AS_Oper("pushl %edx\npushl %ecx\n", NULL, F_CallerSave(), NULL));
 			Temp_temp r = munchExp(exp->u.CALL.fun);
 			Temp_tempList args = munchArgs(0, exp->u.CALL.args);
-			emit(AS_Oper("call `s0\n", NULL, 
+			emit(AS_Oper("call `s0\n", F_CallerSave(), 
 						 Temp_TempList(r, args), NULL));
 
-			T_expList tlist = exp->u.CALL.args;
-			for (; tlist; tlist = tlist->tail) 
-				emit(AS_Oper("popl %ecx\n", Temp_TempList(F_ECX(), NULL), NULL, NULL));
-			emit(AS_Oper("popl %ecx\npopl %edx\n", F_CallerSave(), NULL, NULL));
+			// T_expList tlist = exp->u.CALL.args;
+			// for (; tlist; tlist = tlist->tail) 
+			// 	emit(AS_Oper("popl %ecx\n", Temp_TempList(F_ECX(), NULL), NULL, NULL));
+			// emit(AS_Oper("popl %ecx\npopl %edx\n", F_CallerSave(), NULL, NULL));
 
 			// if (needStaticLink(Temp_labelstring(exp->u.CALL.fun->u.NAME)))
 			// 	emit(AS_Oper("popl %ecx\npopl %ecx\npopl %ecx\npopl %edx\n", F_CallerSave(), NULL, NULL));

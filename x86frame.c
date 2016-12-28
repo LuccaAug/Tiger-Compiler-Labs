@@ -179,7 +179,7 @@ Temp_tempList F_CLTD(void) {
 }
 
 Temp_tempList F_CallerSave(void) {
-    return Temp_TempList(F_EDX(), Temp_TempList(F_ECX(), NULL));
+    return Temp_TempList(F_EAX(), Temp_TempList(F_EDX(), Temp_TempList(F_ECX(), NULL)));
 }
 
 T_exp F_Exp(F_access access, T_exp framePtr) {
