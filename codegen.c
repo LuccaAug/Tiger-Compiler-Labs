@@ -78,8 +78,8 @@ static Temp_temp munchExp(T_exp exp) {
 				r = munchExp(e2);
 				Temp_temp t = munchExp(e1);
 				emit(AS_Oper(String_format("%s `s0, `d0\n", op), 
-					Temp_TempList(r, NULL), Temp_TempList(t, Temp_TempList(r, NULL)), NULL));
-				return r;
+					Temp_TempList(t, NULL), Temp_TempList(r, Temp_TempList(t, NULL)), NULL));
+				return t;
 			}
 			assert(0);
 		} break;
