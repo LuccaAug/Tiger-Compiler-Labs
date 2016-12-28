@@ -215,14 +215,14 @@ Tr_exp Tr_intExp(int i) {
 
 static Temp_temp nilTemp = NULL;
 Tr_exp Tr_nilExp() {
-    if (!nilTemp) {
-        nilTemp = Temp_newtemp(); /*use Temp_temp for nil due to compatible record type*/
-        /*??? why init nil record 0 SIZE*/
-        T_stm alloc = T_Move(T_Temp(nilTemp),
-                             F_externalCall(String("allocRecord"), T_ExpList(T_Const(0), NULL)));
-        return Tr_Ex(T_Eseq(alloc, T_Temp(nilTemp)));
-    }
-    return Tr_Ex(T_Temp(nilTemp));
+    // if (!nilTemp) {
+    //     nilTemp = Temp_newtemp(); /*use Temp_temp for nil due to compatible record type*/
+    //     /*??? why init nil record 0 SIZE*/
+    //     T_stm alloc = T_Move(T_Temp(nilTemp),
+    //                          F_externalCall(String("allocRecord"), T_ExpList(T_Const(0), NULL)));
+    //     return Tr_Ex(T_Eseq(alloc, T_Temp(nilTemp)));
+    // }
+    return Tr_Ex(T_Const(0));
 }
 
 Tr_exp Tr_noExp() {

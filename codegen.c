@@ -105,7 +105,7 @@ static Temp_temp munchExp(T_exp exp) {
 					Temp_temp e1 = munchExp(loc->u.BINOP.right),
 							  e2 = munchExp(loc->u.BINOP.left);
 					emit(AS_Oper("addl `s0, `d0\n", Temp_TempList(e1, NULL),
-													Temp_TempList(e2, NULL), NULL));
+													Temp_TempList(e2, Temp_TempList(e1, NULL)), NULL));
 
 					emit(AS_Move(String_format("movl 0(`s0), `d0\n"), 
 								 Temp_TempList(r, NULL),
