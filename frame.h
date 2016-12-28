@@ -24,6 +24,20 @@ struct F_frag_ {
 			} u;
 };
 
+struct F_frame_ {
+    int local;
+    Temp_label name;
+    F_accessList formals;
+};
+
+struct F_access_ {
+    enum {inFrame, inReg} kind;
+    union {
+        int offset;
+        Temp_temp reg;
+    } u;
+};
+
 F_frag F_StringFrag(Temp_label label, string str);
 F_frag F_ProcFrag(T_stm body, F_frame frame);
 

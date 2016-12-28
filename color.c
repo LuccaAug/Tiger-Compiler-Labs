@@ -157,7 +157,7 @@ static void makeTempMap(G_graph cg, Temp_map initial) {
         string r = Temp_look(initial, t);
         if (r) {
             precolored = G_NodeList(n, precolored);
-            printf("precolored %s %d\n", r, t->num);
+            // printf("precolored %s %d\n", r, t->num);
             if (!strcmp(r, "%eax")) ColorIt(n, 0);
             else if (!strcmp(r, "%ebx")) ColorIt(n, 1);
             else if (!strcmp(r, "%ecx")) ColorIt(n, 2);
@@ -253,12 +253,15 @@ struct COL_result COL_color(G_graph fg, Temp_map initial, Temp_tempList regs) {
 
     AssignColors();
 
+    ret.spills = NULL;
     if (spilledNodes) {
-        printf("bad news\n");
-    	for (; spilledNodes; spilledNodes = spilledNodes->tail)
+        int i = 0;
+    	for (; spilledNodes; spilledNodes = spilledNodes->tail, i++) {
+            Temp_temp t = G_nodeInfo(spilledNodes->head);
     		ret.spills = Temp_TempList(G_nodeInfo(spilledNodes->head), ret.spills);
-    } else
-        printf("good news\n");
+        }
+        return ret;
+    }
 
     Temp_temp regArray[k];
 	int i = 0;
@@ -304,7 +307,7 @@ static void Build(struct Live_graph lg, Temp_map initial) {
         for (; vlist; vlist = vlist->tail) 
             AddEdge(u, vlist->head);
     }
-    printAdjSet(cg);
+    // printAdjSet(cg);
 }
 
 static void AddEdge(G_node u, G_node v) {
@@ -328,8 +331,8 @@ static void MakeWorklist(G_graph g, Temp_tempList r) {
         G_node n = nlist->head;
         Temp_temp t = G_nodeInfo(n);
         int d = degree(n);
-        printf("node:%d degree:%d MoveRelated:%d\n", 
-            t->num, d, MoveRelated(n));
+        // printf("node:%d degree:%d MoveRelated:%d\n", 
+        //     t->num, d, MoveRelated(n));
         if (d >= k) 
         	addNode(&spillWorklist, n);
         else if (MoveRelated(n))
@@ -593,17 +596,12 @@ static void AssignColors() {
                 }
         }
     }
-    
+
     G_nodeList nlist = coalescedNodes;
     for (; nlist; nlist = nlist->tail) {
         G_node n = nlist->head, a = GetAlias(n);
+        if (G_inNodeList(a, spilledNodes)) continue;
         Temp_temp t = G_nodeInfo(n), p = G_nodeInfo(a);
-        if (t->num == 129) printf("129 fuck with %d\n", p->num);
         ColorIt(n, GetColor(a));
     }
-}
-
-static void RewriteProgram() {
-    //TO DO:
-    
 }

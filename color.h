@@ -52,6 +52,4 @@ static void SelectSpill();
 
 static void AssignColors();
 
-static void RewriteProgram();
-
 #endif

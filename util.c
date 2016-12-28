@@ -70,10 +70,11 @@ string String_format(const char *s, ...)
 					isDigit = TRUE;
 					break;
 			default:
-					assert(0); /* Invalid format specifier */
+					goto OK; /* Invalid format specifier */
 			}
 			n = strlen(str);
 		} else {
+			OK:
 			if (i < BUFSIZE - 1) {
 				buffer[i++] = *p; continue;
 			} else {

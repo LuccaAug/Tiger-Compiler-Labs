@@ -14,20 +14,6 @@ const int F_MAX_REG = 6;
 static Temp_temp ebp = NULL, esp = NULL, eax = NULL, ebx = NULL, 
                  ecx = NULL, edx = NULL, esi = NULL, edi = NULL;
 
-struct F_frame_ {
-    int local;
-    Temp_label name;
-    F_accessList formals;
-};
-
-struct F_access_ {
-    enum {inFrame, inReg} kind;
-    union {
-        int offset;
-        Temp_temp reg;
-    } u;
-};
-
 static F_access InFrame(int offs) {
     F_access a = checked_malloc(sizeof(*a));
     a->kind = inFrame;
@@ -241,14 +227,14 @@ void precolor() {
     Temp_enter(F_tempMap, F_EDI(), "%edi");
     Temp_enter(F_tempMap, F_EBP(), "%ebp");
     Temp_enter(F_tempMap, F_ESP(), "%esp");
-    printf("eax is %d\n", eax->num);
-    printf("ebx is %d\n", ebx->num);
-    printf("ecx is %d\n", ecx->num);
-    printf("edx is %d\n", edx->num);
-    printf("esi is %d\n", esi->num);
-    printf("edi is %d\n", edi->num);
-    printf("ebp is %d\n", ebp->num);
-    printf("esp is %d\n", esp->num);
+    // printf("eax is %d\n", eax->num);
+    // printf("ebx is %d\n", ebx->num);
+    // printf("ecx is %d\n", ecx->num);
+    // printf("edx is %d\n", edx->num);
+    // printf("esi is %d\n", esi->num);
+    // printf("edi is %d\n", edi->num);
+    // printf("ebp is %d\n", ebp->num);
+    // printf("esp is %d\n", esp->num);
 }
 
 Temp_tempList F_registers() {
