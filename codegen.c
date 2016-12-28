@@ -17,6 +17,7 @@ static AS_instrList iList = NULL, last = NULL;
 static void emit(AS_instr);
 static void munchStm(T_stm);
 static Temp_temp munchExp(T_exp);
+static int argNum(T_expList);
 static Temp_tempList munchArgs(unsigned int, T_expList);
 
 static void emit(AS_instr inst) {
@@ -152,6 +153,9 @@ static Temp_temp munchExp(T_exp exp) {
 			Temp_tempList args = munchArgs(0, exp->u.CALL.args);
 			emit(AS_Oper("call `s0\n", F_CallerSave(), 
 						 Temp_TempList(r, args), NULL));
+			int offset = argNum(exp->u.CALL.args);
+			emit(AS_Oper(String_format("addl $%d, `d0\n", offset * 4),
+				Temp_TempList(F_ESP(), NULL), NULL, NULL));
 
 			// T_expList tlist = exp->u.CALL.args;
 			// for (; tlist; tlist = tlist->tail) 
@@ -288,6 +292,12 @@ static void munchStm(T_stm stm) {
 		default:
 			assert(0);
 	}
+}
+
+static int argNum(T_expList args) {
+	int r = 0;
+	for (; args; args = args->tail) r++;
+	return r;
 }
 
 static Temp_tempList munchArgs(unsigned int i, T_expList args) {
