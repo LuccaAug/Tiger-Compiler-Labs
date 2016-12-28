@@ -256,12 +256,16 @@ struct COL_result COL_color(G_graph fg, Temp_map initial, Temp_tempList regs) {
     ret.spills = NULL;
     if (spilledNodes) {
         int i = 0;
+        printf("spilledNodes:\n");
     	for (; spilledNodes; spilledNodes = spilledNodes->tail, i++) {
             Temp_temp t = G_nodeInfo(spilledNodes->head);
+            printf("%d, ", t->num);
     		ret.spills = Temp_TempList(G_nodeInfo(spilledNodes->head), ret.spills);
         }
+        printf("\n");
         return ret;
-    }
+    } else
+        printf("no spilledNodes\n");
 
     Temp_temp regArray[k];
 	int i = 0;

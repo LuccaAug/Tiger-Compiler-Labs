@@ -70,7 +70,7 @@ string String_format(const char *s, ...)
 					isDigit = TRUE;
 					break;
 			default:
-					goto OK; /* Invalid format specifier */
+					assert(0); /* Invalid format specifier */
 			}
 			n = strlen(str);
 		} else {

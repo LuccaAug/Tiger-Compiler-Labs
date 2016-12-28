@@ -155,7 +155,7 @@ static struct Cx unCx(Tr_exp e){
     case Tr_ex: {
         struct Cx cx;
         /*there is no real-label in patchList*/
-        cx.stm = T_Cjump(T_eq, e->u.ex, T_Const(1), NULL, NULL);
+        cx.stm = T_Cjump(T_ne, e->u.ex, T_Const(0), NULL, NULL);
         cx.trues = PatchList(&(cx.stm->u.CJUMP.true), NULL);
         cx.falses = PatchList(&(cx.stm->u.CJUMP.false), NULL);
         return cx;

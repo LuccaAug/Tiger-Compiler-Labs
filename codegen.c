@@ -10,6 +10,7 @@
 #include "frame.h"
 #include "codegen.h"
 #include "table.h"
+#include <string.h>
 
 //Lab 6: your code here
 static AS_instrList iList = NULL, last = NULL;
@@ -60,6 +61,13 @@ static Temp_temp munchExp(T_exp exp) {
 					assert(0);
 			}
 			if (exp->u.BINOP.left->kind == T_CONST) {
+				if (exp->u.BINOP.op == T_minus) {
+					r = munchExp(exp->u.BINOP.left);
+					Temp_temp x = munchExp(exp->u.BINOP.right);
+					emit(AS_Oper("subl `s0, `d0\n", Temp_TempList(r, NULL),
+						Temp_TempList(x, Temp_TempList(r, NULL)), NULL));
+					return r;
+				}
 				T_exp e2 = exp->u.BINOP.right;
 				r = munchExp(e2);
 				int n = exp->u.BINOP.left->u.CONST;
@@ -166,7 +174,7 @@ static Temp_temp munchExp(T_exp exp) {
 			// 	emit(AS_Oper("popl %ecx\npopl %ecx\npopl %ecx\npopl %edx\n", F_CallerSave(), NULL, NULL));
 			// else
 			// 	emit(AS_Oper("popl %ecx\npopl %ecx\npopl %edx\n", F_CallerSave(), NULL, NULL));
-			return r;
+			return F_EAX();
 		} break;
 		default:
 			assert(0);
@@ -185,6 +193,8 @@ static void munchStm(T_stm stm) {
 		} break;
 		case T_JUMP: {
 			Temp_label label = stm->u.JUMP.jumps->head;
+			printf("%s\n", String_format("jmp %s\n", Temp_labelstring(label)));
+
 			emit(AS_Oper(String_format("jmp %s\n", Temp_labelstring(label)), 
 				NULL, NULL, AS_Targets(stm->u.JUMP.jumps)));
 		} break;
