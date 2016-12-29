@@ -548,9 +548,7 @@ static void Combine(G_node u, G_node v) {
     for (; adj; adj = adj->tail) {
         G_node t = adj->head;
 	b = G_nodeInfo(t);
-	printf("%d ", b->num);
         if (G_inNodeList(t, selectStack) || G_inNodeList(t, coalescedNodes)) {
-        printf("1 ");
 	    if (!inAdjSet(u, t) && u != t) {
                 addToAdjSet(u, t);
                 if (!G_inNodeList(u, precolored)) {
@@ -560,10 +558,8 @@ static void Combine(G_node u, G_node v) {
                     addToAdjList(t, u);
                 }
             }
-	printf("\n");
         }
         else { 
-	printf("2\n");
             AddEdge(t, u);
             DecrementDegree(t);
             b = G_nodeInfo(t); 
