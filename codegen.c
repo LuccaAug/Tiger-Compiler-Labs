@@ -272,18 +272,21 @@ static void munchStm(T_stm stm) {
 				} else if (src->kind == T_BINOP && src->u.BINOP.op == T_plus && 
 						   (src->u.BINOP.left->kind == T_CONST ||
 						   	src->u.BINOP.right->kind == T_CONST)) {
-					if (src->u.BINOP.left->kind == T_CONST && src->u.BINOP.right->kind == T_TEMP) {
+					if (src->u.BINOP.left->kind == T_CONST && 
+					(src->u.BINOP.right->kind == T_TEMP || src->u.BINOP.right->kind == T_MEM)) {
 						int c = src->u.BINOP.left->u.CONST;
 						emit(AS_Oper(String_format("leal %d(`s0), `d0\n", c),
 							Temp_TempList(munchExp(dst), NULL), 
 							Temp_TempList(munchExp(src->u.BINOP.right), NULL), NULL));
 					} else 
-					if (src->u.BINOP.right->kind == T_CONST && src->u.BINOP.left->kind == T_TEMP) {
+					if (src->u.BINOP.right->kind == T_CONST && 
+					(src->u.BINOP.left->kind == T_TEMP || src->u.BINOP.left->kind == T_MEM)) {
 						int c = src->u.BINOP.right->u.CONST;
 						emit(AS_Oper(String_format("leal %d(`s0), `d0\n", c),
 							Temp_TempList(munchExp(dst), NULL), 
 							Temp_TempList(munchExp(src->u.BINOP.left), NULL), NULL));
-					} 
+					} else
+						assert(0);
 				} else if (src->kind == T_NAME) {
 					emit(AS_Move("movl $`s0, `d0\n", Temp_TempList(munchExp(dst), NULL),
 						Temp_TempList(munchExp(src), NULL)));
