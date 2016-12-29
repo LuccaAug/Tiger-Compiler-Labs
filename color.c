@@ -13,6 +13,7 @@
 #include "liveness.h"
 #include "flowgraph.h"
 
+static G_graph tmp_store_cg;
 static int k;
 static TAB_table tempMap;
 static G_table t_degree, t_move, alias, moveList, adjSet, adjList, color;
@@ -221,6 +222,7 @@ static combine_moveList(G_node u, G_node v) {
 
 static printAdjSet(G_graph g) {
 	G_nodeList nlist = G_nodes(g);
+    printf("AdjSet:\n");
 	for (; nlist; nlist = nlist->tail) {
 		G_node n = nlist->head;
 		Temp_temp t = G_nodeInfo(n);
@@ -251,6 +253,7 @@ struct COL_result COL_color(G_graph fg, Temp_map initial, Temp_tempList regs) {
         else if (spillWorklist)  SelectSpill();
     } while (!end());
 
+    // printAdjSet(lg.cg);
     AssignColors();
 
     ret.spills = NULL;
@@ -472,6 +475,8 @@ static void Coalesce() {
     else if ((G_inNodeList(u, precolored) && Safe(u, v)) ||
             (!G_inNodeList(u, precolored) && Conservative(u, v))) {
     	//it's OK to coalesce u and v
+        Temp_temp a = G_nodeInfo(u), b = G_nodeInfo(v);
+        printf("it's ok to coalesce %d %d\n", a->num, b->num);
         addMove(&coalescedMoves, m);
         Combine(u, v);
         AddWorkList(u);
@@ -511,26 +516,68 @@ static G_node GetAlias(G_node n) {
     return n;
 }
 
+static void printAdjList(G_node n) {
+    Temp_temp t = G_nodeInfo(n);
+    printf("%d's adjList:\n", t->num);
+    G_nodeList nlist = G_look(adjList, n);
+    for (; nlist; nlist = nlist->tail) {
+        t = G_nodeInfo(nlist->head);
+        printf("%d, ", t->num);
+    }
+    printf("\n");
+}
+
 static void Combine(G_node u, G_node v) {
     if (G_inNodeList(v, freezeWorklist))
         delNode(&freezeWorklist, v);
     else
         delNode(&spillWorklist, v);
+    Temp_temp a = G_nodeInfo(u), b = G_nodeInfo(v);
 
     addNode(&coalescedNodes, v);
     G_enter(alias, v, u);
     combine_moveList(u, v);
     EnableMoves(G_NodeList(v, NULL));
-    G_nodeList adj = Adjacent(v);
+    if (a->num == 107) {
+        printf("---------------------------begin\n");
+        printAdjList(u);
+        printAdjList(v);
+    }
+
+    G_nodeList adj = G_look(adjList, v);
     for (; adj; adj = adj->tail) {
         G_node t = adj->head;
-        AddEdge(t, u);
-        DecrementDegree(t);
+	b = G_nodeInfo(t);
+	printf("%d ", b->num);
+        if (G_inNodeList(t, selectStack) || G_inNodeList(t, coalescedNodes)) {
+        printf("1 ");
+	    if (!inAdjSet(u, t) && u != t) {
+                addToAdjSet(u, t);
+                if (!G_inNodeList(u, precolored)) {
+                    addToAdjList(u, t);
+                }
+                if (!G_inNodeList(t, precolored)) {
+                    addToAdjList(t, u);
+                }
+            }
+	printf("\n");
+        }
+        else { 
+	printf("2\n");
+            AddEdge(t, u);
+            DecrementDegree(t);
+            b = G_nodeInfo(t); 
+        }
     }
     int d = degree(u);
     if (d >= k && G_inNodeList(u, freezeWorklist)) {
         delNode(&freezeWorklist, u);
         addNode(&spillWorklist, u);
+    }
+    if (a->num == 107) {
+        printf("---------------------------end\n");
+        printAdjList(u);
+        printAdjList(v);
     }
 }
 
@@ -571,13 +618,14 @@ static void SelectSpill() {
 static void AssignColors() {
     while (selectStack) {
         G_node n = selectStack->head;
-        Temp_temp t = G_nodeInfo(n);
+        Temp_temp t = G_nodeInfo(n), tt;
         delNode(&selectStack, n);
         int okColors[k];
         memset(okColors, 0, sizeof(okColors));
         G_nodeList nlist = G_look(adjList, n);
         for (; nlist; nlist = nlist->tail) {
             G_node w = GetAlias(nlist->head);
+            tt = G_nodeInfo(w);
             if (G_inNodeList(w, coloredNodes) ||
                 G_inNodeList(w, precolored)) {
                 Temp_temp t = G_nodeInfo(w);
@@ -588,13 +636,16 @@ static void AssignColors() {
         int i, available = k;
         for (i = 0; i < k; i++) available -= okColors[i];
 
-
-        if (available == 0)
+        printf("AssignColors %d ", t->num);
+        if (available == 0) {
+            printf("spills\n");
             addNode(&spilledNodes, n);
+        }
         else {
             addNode(&coloredNodes, n);
             for (i = 0; i < k; i++)
                 if (!okColors[i]) {
+                    printf("%d\n", i);
                     ColorIt(n, i);
                     break;
                 }
@@ -607,5 +658,7 @@ static void AssignColors() {
         if (G_inNodeList(a, spilledNodes)) continue;
         Temp_temp t = G_nodeInfo(n), p = G_nodeInfo(a);
         ColorIt(n, GetColor(a));
+        printf("%d got coalesce with %d color %d\n", 
+            t->num, p->num, GetColor(a));
     }
 }

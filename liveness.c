@@ -83,6 +83,7 @@ static int equal(Temp_tempList a, Temp_tempList b) {
 }
 
 static void watch_lg(G_graph g) {
+	printf("watch_lg:\n");
 	G_nodeList nlist = G_nodes(g);
 	for (; nlist; nlist = nlist->tail) {
 		G_node n = nlist->head;
