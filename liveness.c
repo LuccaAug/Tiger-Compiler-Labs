@@ -187,7 +187,6 @@ static void Liveness_Analysis(G_graph flow) {
 			if (!equal(new_in, live_in) || !equal(new_out, live_out)) done = 0;
 		}
 	}
-	// watch_lg(flow);
 }
 
 static void getAllRegs(G_graph g) {

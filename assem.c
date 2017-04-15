@@ -140,10 +140,23 @@ void AS_print(FILE *out, AS_instr i, Temp_map m)
   }
 }
 
+static int removable(AS_instr i, Temp_map m) {
+  if (i->kind != I_MOVE) return 0;
+  Temp_tempList d = i->u.MOVE.dst, s = i->u.MOVE.src;
+  if (!d || !s) return 0;
+  if (strstr(i->u.MOVE.assem, "(")) return 0;
+  if (!strcmp(Temp_look(m, d->head), Temp_look(m, s->head))) return 1;
+  return 0;
+}
+
 /* c should be COL_color; temporarily it is not */
 void AS_printInstrList (FILE *out, AS_instrList iList, Temp_map m)
 {
   for (; iList; iList=iList->tail) {
+    if (removable(iList->head, m)) {
+      // AS_print(out, iList->head, m);
+      continue;
+    }
     AS_print(out, iList->head, m);
   }
   fprintf(out, "\n");

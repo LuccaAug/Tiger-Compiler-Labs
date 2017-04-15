@@ -22,4 +22,7 @@ U_boolList U_BoolList(bool head, U_boolList tail);
 
 int needStaticLink(char *name);
 
+string String_toPut(char *s);
+
+
 #endif

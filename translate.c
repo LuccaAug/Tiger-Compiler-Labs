@@ -11,7 +11,7 @@
 #include "printtree.h"
 
 #define F_WORD_SIZE 4
-/******frame******/
+
 struct Tr_level_ {
     Tr_level parent;
     Temp_label name;
@@ -26,10 +26,7 @@ struct Tr_access_ {
 
 static Tr_accessList makeFormalAccessList(Tr_level);
 static Tr_access Tr_Access(Tr_level, F_access);
-/**debug info**/
-static void display_l(Tr_level);
-static void display_ac(Tr_access);
-/*******IR*******/
+
 struct Cx {
     patchList trues;
     patchList falses;
@@ -37,21 +34,16 @@ struct Cx {
 };
 
 struct Tr_exp_ {
-    /* actually Tr_exp_ is (T_ex, T_nx, struct Cx)'s set 
-     * T_stm also can express T_exp
-     * T_exp stand for a exp-val
-     * struct Cx stand for condition-jump
-     */
     enum {Tr_ex, Tr_nx, Tr_cx} kind;
     union {
-        T_exp ex;    /*exp*/
-        T_stm nx;    /*non-exp*/
-        struct Cx cx;/*condition-stm*/ 
+        T_exp ex;    
+        T_stm nx;    
+        struct Cx cx;
     } u;
 };
 
 struct patchList_ {
-    Temp_label * head; /*??? why save a point-to-Temp_label (because) */
+    Temp_label * head;
     patchList tail;
 };
 static Tr_exp Tr_Ex(T_exp);
@@ -79,7 +71,6 @@ void Tr_expList_prepend(Tr_exp h, Tr_expList * l) {
 }
 
 static Tr_exp Tr_Ex(T_exp exp) {
-    /* trans T_exp to Tr_exp*/
     Tr_exp e = checked_malloc(sizeof(*e));
     e->kind = Tr_ex;
     e->u.ex = exp;
@@ -87,7 +78,6 @@ static Tr_exp Tr_Ex(T_exp exp) {
 }
 
 static Tr_exp Tr_Nx(T_stm stm) {
-    /* trans T_stm to Tr_exp */
     Tr_exp e = checked_malloc(sizeof(*e));
     e->kind = Tr_nx;
     e->u.nx = stm;
@@ -104,7 +94,6 @@ static Tr_exp Tr_Cx(patchList trues, patchList falses, T_stm stm) {
 }
 
 static T_exp unEx(Tr_exp e) {
-    /*trans Tr_exp to T_exp*/
     switch (e->kind) {
     case Tr_ex:
         return e->u.ex;
@@ -126,15 +115,14 @@ static T_exp unEx(Tr_exp e) {
 }
 
 static T_stm unNx(Tr_exp e) {
-    /*trans Tr_exp to T_stm*/
     switch (e->kind) {
     case Tr_ex:
         return T_Exp(e->u.ex);
     case Tr_nx:
         return e->u.nx;
     case Tr_cx: {
-        Temp_temp r = Temp_newtemp(); /*temp for save exp-val*/
-        Temp_label t = Temp_newlabel(), f = Temp_newlabel(); /* ture-label & false-label added here */
+        Temp_temp r = Temp_newtemp();
+        Temp_label t = Temp_newlabel(), f = Temp_newlabel();
         doPatch(e->u.cx.trues, t);
         doPatch(e->u.cx.falses, f);
         return T_Exp(T_Eseq(T_Move(T_Temp(r), T_Const(1)),
@@ -154,35 +142,32 @@ static struct Cx unCx(Tr_exp e){
         return e->u.cx;
     case Tr_ex: {
         struct Cx cx;
-        /*there is no real-label in patchList*/
         cx.stm = T_Cjump(T_ne, e->u.ex, T_Const(0), NULL, NULL);
         cx.trues = PatchList(&(cx.stm->u.CJUMP.true), NULL);
         cx.falses = PatchList(&(cx.stm->u.CJUMP.false), NULL);
         return cx;
     }
     case Tr_nx:
-        assert(0); /*this should not occur*/
+        assert(0);
     }
     assert(0);
 }
 
 Tr_exp Tr_simpleVar(Tr_access ac, Tr_level l) {
-    T_exp addr = T_Temp(F_EBP()); /*addr is frame point*/
-    while (l != ac->level) { /* until find the level which def the var */
+    T_exp addr = T_Temp(F_EBP());
+    while (l != ac->level) { 
         F_access sl = F_formals(l->frame)->head;
         addr = F_Exp(sl, addr);
         l = l->parent;
     }
-    return Tr_Ex(F_Exp(ac->access, addr)); /* return val include frame point & offs */
+    return Tr_Ex(F_Exp(ac->access, addr)); 
 }
 
 Tr_exp Tr_fieldVar(Tr_exp base, int offs) {
-    /* return base + offs * WORD-SIZE */
     return Tr_Ex(T_Mem(T_Binop(T_plus, unEx(base), T_Const(offs * F_WORD_SIZE))));
 }
 
 Tr_exp Tr_subscriptVar(Tr_exp base, Tr_exp index) {
-    /* return base + index * WORD-SIZE */
     return Tr_Ex(T_Mem(T_Binop(T_plus,
                                unEx(base),
                                T_Binop(T_mul, unEx(index), T_Const(F_WORD_SIZE)))));
@@ -202,7 +187,6 @@ void Tr_procEntryExit(Tr_level level, Tr_exp body, S_symbol result) {
 
 static F_fragList stringFragList = NULL;
 Tr_exp Tr_stringExp(string s) { 
-    /*const-string is a label point a addr*/
     Temp_label slabel = Temp_newlabel();
     F_frag fragment = F_StringFrag(slabel, s);
     stringFragList = F_FragList(fragment, stringFragList);
@@ -215,24 +199,15 @@ Tr_exp Tr_intExp(int i) {
 
 static Temp_temp nilTemp = NULL;
 Tr_exp Tr_nilExp() {
-    // if (!nilTemp) {
-    //     nilTemp = Temp_newtemp(); /*use Temp_temp for nil due to compatible record type*/
-    //     /*??? why init nil record 0 SIZE*/
-    //     T_stm alloc = T_Move(T_Temp(nilTemp),
-    //                          F_externalCall(String("allocRecord"), T_ExpList(T_Const(0), NULL)));
-    //     return Tr_Ex(T_Eseq(alloc, T_Temp(nilTemp)));
-    // }
     return Tr_Ex(T_Const(0));
 }
 
 Tr_exp Tr_noExp() {
-    /*const 0 stand-for non-val-exp*/
     return Tr_Ex(T_Const(0));
 }
 
 Tr_exp Tr_recordExp(int n, Tr_expList l) {
     Temp_temp r = Temp_newtemp();
-    /*alloc n * WORD-SIZE mem*/
     T_stm alloc = T_Move(T_Temp(r),
                          T_Eseq(T_Exp(F_externalCall(String("allocRecord"), T_ExpList(T_Const(n * F_WORD_SIZE), NULL))), T_Temp(F_EAX())));
 
@@ -240,13 +215,11 @@ Tr_exp Tr_recordExp(int n, Tr_expList l) {
     T_stm seq = T_Move(T_Mem(T_Binop(T_plus, T_Temp(r), T_Const(i-- * F_WORD_SIZE))), 
                              unEx(l->head));
 
-    /*put value to the alloc-addr*/
     for (l = l->tail; l; l = l->tail, i--) {
         seq = T_Seq(T_Move(T_Mem(T_Binop(T_plus, T_Temp(r), T_Const(i * F_WORD_SIZE))), 
                            unEx(l->head)),
                     seq);
     }
-    /* resl is a pointer point addr */
     return Tr_Ex(T_Eseq(T_Seq(alloc, seq), T_Temp(r)));
 }
 
@@ -256,14 +229,14 @@ Tr_exp Tr_arrayExp(Tr_exp size, Tr_exp init) {
 }
 
 Tr_exp Tr_seqExp(Tr_expList l) {
-    T_exp resl = unEx(l->head); /* resl cant be NULL */
+    T_exp resl = unEx(l->head); 
     for (l = l->tail; l; l = l->tail) {
         resl = T_Eseq(T_Exp(unEx(l->head)), resl);
     }
     return Tr_Ex(resl);
 }
 
-Tr_exp Tr_doneExp() { return Tr_Ex(T_Name(Temp_newlabel())); } /* doneExp may is a breakExp JUMP label */
+Tr_exp Tr_doneExp() { return Tr_Ex(T_Name(Temp_newlabel())); } 
 
 Tr_exp Tr_whileExp(Tr_exp test, Tr_exp body, Tr_exp done) {
     Temp_label testl = Temp_newlabel(), bodyl = Temp_newlabel(), 
@@ -286,7 +259,7 @@ Tr_exp Tr_assignExp(Tr_exp lval, Tr_exp exp) { return Tr_Nx(T_Move(unEx(lval), u
 
 Tr_exp Tr_breakExp(Tr_exp b) { return Tr_Nx(T_Jump(T_Name(unEx(b)->u.NAME), Temp_LabelList(unEx(b)->u.NAME, NULL))); }
 
-Tr_exp Tr_arithExp(A_oper op, Tr_exp left, Tr_exp right) { /* (+, -, *, /) */
+Tr_exp Tr_arithExp(A_oper op, Tr_exp left, Tr_exp right) {
     T_binOp opp;
     switch(op) {
     case A_plusOp  : opp = T_plus; break;
@@ -299,7 +272,6 @@ Tr_exp Tr_arithExp(A_oper op, Tr_exp left, Tr_exp right) { /* (+, -, *, /) */
 }
 
 Tr_exp Tr_eqExp(A_oper op, Tr_exp left, Tr_exp right) {
-    /* num is equal */
     T_relOp opp;
     if (op == A_eqOp) 
         opp = T_eq; 
@@ -312,7 +284,6 @@ Tr_exp Tr_eqExp(A_oper op, Tr_exp left, Tr_exp right) {
 }
 
 Tr_exp Tr_eqStringExp(A_oper op, Tr_exp left, Tr_exp right) {
-    /* string-content is equal */
     T_exp resl = F_externalCall(String("stringEqual"), T_ExpList(unEx(left), T_ExpList(unEx(right), NULL)));
     if (op == A_eqOp) return Tr_Ex(resl);
     else if (op == A_neqOp){
@@ -325,9 +296,6 @@ Tr_exp Tr_eqStringExp(A_oper op, Tr_exp left, Tr_exp right) {
 }
 
 Tr_exp Tr_eqRef(A_oper op, Tr_exp left, Tr_exp right) {
-    /* how to compare two addr?
-     * point-addr is equal 
-     */
     T_relOp opp;
     if (op == A_eqOp) opp = T_eq; else opp = T_ne;
     T_stm cond = T_Cjump(opp, unEx(left), unEx(right), NULL, NULL);
@@ -343,7 +311,7 @@ Tr_exp Tr_relExp(A_oper op, Tr_exp left, Tr_exp right) {
         case A_leOp: oper = T_le; break;
         case A_gtOp: oper = T_gt; break;
         case A_geOp: oper = T_ge; break;
-        default: assert(0); /* should never happen*/
+        default: assert(0);
     }
     T_stm cond = T_Cjump(oper, unEx(left), unEx(right), NULL, NULL);
     patchList trues = PatchList(&cond->u.CJUMP.true, NULL);

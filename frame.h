@@ -53,8 +53,8 @@ T_exp F_Exp(F_access acc, T_exp framePtr);
 F_access F_allocLocal(F_frame f, bool escape);
 F_accessList F_formals(F_frame f);
 Temp_label F_name(F_frame f);
-Temp_temp F_EBP(void);//ebp
-Temp_temp F_ESP(void);//esp
+Temp_temp F_EBP(void);
+Temp_temp F_ESP(void);
 Temp_temp F_EAX(void);
 Temp_temp F_EBX(void);
 Temp_temp F_ECX(void);

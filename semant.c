@@ -35,7 +35,6 @@ static U_boolList makeFormals(A_fieldList params) {
 }
 
 static A_exp transform(A_exp forExp) {
-	// struct {S_symbol var; A_exp lo,hi,body; bool escape;} forr;
 	A_pos p = forExp->pos;
 	S_symbol var = forExp->u.forr.var;
 	S_symbol lim = S_Symbol("_LIMIT");
@@ -331,26 +330,6 @@ struct expty transExp(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_
             return expTy(Tr_whileExp(exp1.exp, exp2.exp, done), Ty_Void());
         }
         case A_forExp: {
-        	// printf("A_forExp\n");
-        	//type-checking part
-            // loopvar = e->u.forr.var;
-            // loop++;
-            // S_beginScope(venv);
-            // Tr_access ac = Tr_allocLocal(level, e->u.forr.escape);
-            // S_enter(venv, e->u.forr.var, E_VarEntry(ac, Ty_Int()));
-            // struct expty exp1 = transExp(level, exp, venv, tenv, e->u.forr.lo);
-            // if (exp1.ty->kind != Ty_int)
-            //     EM_error(e->pos, "for exp's range type is not integer");
-            // struct expty exp2 = transExp(level, exp, venv, tenv, e->u.forr.hi);
-            // if (exp2.ty->kind != Ty_int)
-            //     EM_error(e->pos, "for exp's range type is not integer");
-            // struct expty exp3 = transExp(level, exp, venv, tenv, e->u.forr.body);
-            // loop--;
-            // if (exp3.ty->kind != Ty_nil && exp3.ty->kind != Ty_void)
-            //     EM_error(e->pos, "for body produces value");
-            // S_endScope(venv);
-            // loopvar = NULL;
-            //transform part
             A_exp forExp = transform(e);
             struct expty result = transExp(level, exp, venv, tenv, forExp);
             return expTy(result.exp, Ty_Void());
@@ -489,6 +468,22 @@ struct expty transExp(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_
     }
 }
 
+static void DebugPrintInfo(A_dec d) {
+    switch (d->kind) {
+        case (A_functionDec) : {
+            printf("This is a function dec\n");
+        } break;
+        case (A_typeDec): {
+            printf("This is a function dec\n");
+        } break;
+        case (A_varDec): {
+            printf("This is a function dec\n");
+        }
+        default:
+            d->u.var.escape = 1;
+    }
+}
+
 Tr_exp transDec(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_dec d) {
     switch (d->kind) {
         case (A_functionDec): {
@@ -558,6 +553,7 @@ Tr_exp transDec(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_dec d)
                     typ = Ty_Void();
                 }
             }
+            DebugPrintInfo(d);
             struct expty init = transExp(level, exp, venv, tenv, d->u.var.init);
             Tr_access ac = Tr_allocLocal(level, d->u.var.escape);
             if (init.ty->kind != typ->kind && typ->kind != Ty_nil && init.ty->kind != Ty_nil) {

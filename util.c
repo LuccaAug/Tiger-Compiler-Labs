@@ -111,3 +111,48 @@ int needStaticLink(char *name) {
     if (!strcmp(name, "chr"))     return 0;
     return 1;
 }
+
+string String_toPut(char *s) {
+
+  int len = strlen(s);
+
+  char *ret = malloc(2*len+1);
+
+  int i = 0, p = 0;
+
+  for (i=0; i<len; i++) {
+
+    if (s[i]!='\n' && s[i]!='\t') {
+
+      ret[p]=s[i];
+
+      p++;
+
+    }
+
+    else if (s[i]=='\n') {
+
+      ret[p]='\\';
+
+      ret[p+1]='n';
+
+      p+=2;
+
+    }
+
+    else {
+
+      ret[p]='\\';
+
+      ret[p+1]='t';
+
+      p+=2;
+
+    }
+
+  }
+
+  ret[p]='\0';
+
+  return ret;
+}

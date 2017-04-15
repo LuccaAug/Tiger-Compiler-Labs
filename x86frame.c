@@ -84,7 +84,6 @@ static F_accessList makeFormalAccessList(F_frame f, U_boolList formals) {
         if (i < F_MAX_REG && !fmls->head) {
             ac = InReg(Temp_newtemp());
         } else {
-            /*keep a space for return*/
             ac = InFrame((i + 2) * F_wordSize);
         }
         if (head) {
@@ -205,16 +204,6 @@ T_stm F_procEntryExit1(F_frame frame, T_stm stm) {
     T_stm popEDI = T_Move(T_Temp(F_EDI()), T_Binop(T_minus, T_Temp(F_EBP()), T_Const(edi->u.offset)));
     return T_Seq(pushEBX, T_Seq(pushESI, T_Seq(pushEDI, T_Seq(stm, T_Seq(popEBX, T_Seq(popESI, popEDI))))));
 }
-
-// AS_instrList F_procEntryExit2(AS_instrList body) {
-//     //TO DO:
-// }
-
-// void F_procEntryExit3(AS_instrList *body) {
-//     AS_instr prologue = AS_Oper("pushl %%ebp\nmovl %%esp, %%ebp\nsubl $64, %%esp\n", NULL, NULL, NULL);
-//     AS_instr epilogue = AS_Oper("leave\nret\n", NULL, NULL, NULL);
-//     *body = AS_InstrList(prologue, AS_InstrList(*body, AS_InstrList(epilogue, NULL)));
-// }
 
 static Temp_tempList registers = NULL;
 
