@@ -13,7 +13,7 @@ static S_symbol mksymbol(string name, S_symbol next)
  return s;
 }
 
-#define SIZE 109  /* should be prime */
+#define SIZE 109
 
 static S_symbol hashtable[SIZE];
 
@@ -72,4 +72,3 @@ void S_endScope(S_table t)
 void S_dump(S_table t, void (*show)(S_symbol sym, void *binding)) {
   TAB_dump(t, (void (*)(void *, void *)) show);
 }
-

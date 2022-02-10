@@ -1,6 +1,5 @@
 /*
  * canon.c - Functions to convert the IR trees into basic blocks and traces.
- *
  */
 #include <stdio.h>
 #include "util.h"
@@ -12,7 +11,6 @@
 typedef struct expRefList_ *expRefList;
 struct expRefList_ {T_exp *head; expRefList tail;};
 
-/* local function prototypes */
 static T_stm do_stm(T_stm stm);
 static struct stmExp do_exp(T_exp exp);
 static C_stmListList mkBlocks(T_stmList stms, Temp_label done);
@@ -45,7 +43,7 @@ static bool commute(T_stm x, T_exp y)
 struct stmExp {T_stm s; T_exp e;};
 
 static T_stm reorder(expRefList rlist) {
-   if (!rlist) return T_Exp(T_Const(0)); /* nop */
+   if (!rlist) return T_Exp(T_Const(0));
    else if ((*rlist->head)->kind==T_CALL) {
       Temp_temp t = Temp_newtemp();
       *rlist->head = T_Eseq(T_Move(T_Temp(t),*rlist->head),T_Temp(t));
@@ -66,13 +64,14 @@ static T_stm reorder(expRefList rlist) {
  }
 
 static expRefList get_call_rlist(T_exp exp)
-{expRefList rlist, curr;
- T_expList args = exp->u.CALL.args;
- curr = rlist = ExpRefList(&exp->u.CALL.fun, NULL);
- for (;args; args=args->tail) {
-   curr = curr->tail = ExpRefList(&args->head, NULL);
- }
- return rlist;
+{
+  expRefList rlist, curr;
+  T_expList args = exp->u.CALL.args;
+  curr = rlist = ExpRefList(&exp->u.CALL.fun, NULL);
+  for (;args; args=args->tail) {
+    curr = curr->tail = ExpRefList(&args->head, NULL);
+  }
+  return rlist;
 }
 
 static struct stmExp StmExp(T_stm stm, T_exp exp) {
@@ -102,7 +101,6 @@ static struct stmExp do_exp(T_exp exp)
   }
 }
 
-/* processes stm so that it contains no ESEQ nodes */
 static T_stm do_stm(T_stm stm)
 {
   switch (stm->kind) {
@@ -126,7 +124,7 @@ static T_stm do_stm(T_stm stm)
       stm->u.MOVE.dst = stm->u.MOVE.dst->u.ESEQ.exp;
       return do_stm(T_Seq(s, stm));
     }
-    assert(0); /* dst should be temp or mem only */
+    assert(0);
   case T_EXP:
     if (stm->u.EXP->kind == T_CALL)
          return seq(reorder(get_call_rlist(stm->u.EXP)), stm);
@@ -136,7 +134,6 @@ static T_stm do_stm(T_stm stm)
  }
 }
 
-/* linear gets rid of the top-level SEQ's, producing a list */
 static T_stmList linear(T_stm stm, T_stmList right)
 {
  if (stm->kind == T_SEQ) 
@@ -144,10 +141,6 @@ static T_stmList linear(T_stm stm, T_stmList right)
  else return T_StmList(stm, right);
 }
 
-/* From an arbitrary Tree statement, produce a list of cleaned trees
-   satisfying the following properties:
-      1.  No SEQ's or ESEQ's
-      2.  The parent of every CALL is an EXP(..) or a MOVE(TEMP t,..) */
 T_stmList C_linearize(T_stm stm)
 {
     return linear(do_stm(stm), NULL);
@@ -159,7 +152,6 @@ static C_stmListList StmListList(T_stmList head, C_stmListList tail)
  return p;
 }
  
-/* Go down a list looking for end of basic block */
 static C_stmListList next(T_stmList prevstms, T_stmList stms, Temp_label done)
 {
   if (!stms) 
@@ -184,30 +176,17 @@ static C_stmListList next(T_stmList prevstms, T_stmList stms, Temp_label done)
   }
 }
 
-/* Create the beginning of a basic block */
 static C_stmListList mkBlocks(T_stmList stms, Temp_label done)
 {
-  if (!stms) { 
+  if (!stms)
     return NULL;
-  }
-  if (stms->head->kind != T_LABEL) {
+
+  if (stms->head->kind != T_LABEL)
     return mkBlocks(T_StmList(T_Label(Temp_newlabel()), stms), done);
-  }
-  /* else there already is a label */
+
   return StmListList(stms, next(stms, stms->tail, done));
 }
 
-        /* basicBlocks : Tree.stm list -> (Tree.stm list list * Tree.label)
-	       From a list of cleaned trees, produce a list of
-	 basic blocks satisfying the following properties:
-	      1. and 2. as above;
-	      3.  Every block begins with a LABEL;
-              4.  A LABEL appears only at the beginning of a block;
-              5.  Any JUMP or CJUMP is the last stm in a block;
-              6.  Every block ends with a JUMP or CJUMP;
-           Also produce the "label" to which control will be passed
-           upon exit.
-        */
 struct C_block C_basicBlocks(T_stmList stmList)
 {
   struct C_block b;
@@ -236,12 +215,11 @@ static void trace(T_stmList list)
   if (s->kind == T_JUMP) {
     T_stmList target = (T_stmList) S_look(block_env, s->u.JUMP.jumps->head);
     if (!s->u.JUMP.jumps->tail && target) {
-      last->tail = target; /* merge the 2 lists removing JUMP stm */
+      last->tail = target;
       trace(target);
     }
-    else last->tail->tail = getNext(); /* merge and keep JUMP stm */
+    else last->tail->tail = getNext();
   }
-  /* we want false label to follow CJUMP */
   else if (s->kind == T_CJUMP) {
     T_stmList true =  (T_stmList) S_look(block_env, s->u.CJUMP.true);
     T_stmList false =  (T_stmList) S_look(block_env, s->u.CJUMP.false);
@@ -249,7 +227,7 @@ static void trace(T_stmList list)
       last->tail->tail = false;
       trace(false);
     }
-    else if (true) { /* convert so that existing label is a false label */
+    else if (true) {
       last->tail->head = T_Cjump(T_notRel(s->u.CJUMP.op), s->u.CJUMP.left,
 				 s->u.CJUMP.right, s->u.CJUMP.false, 
 				 s->u.CJUMP.true);
@@ -266,15 +244,13 @@ static void trace(T_stmList list)
   else assert(0);
 }
 
-/* get the next block from the list of stmLists, using only those that have
- * not been traced yet */
 static T_stmList getNext()
 {
   if (!global_block.stmLists)
     return T_StmList(T_Label(global_block.label), NULL);
   else {
     T_stmList s = global_block.stmLists->head;
-    if (S_look(block_env, s->head->u.LABEL)) {/* label exists in the table */
+    if (S_look(block_env, s->head->u.LABEL)) {
       trace(s);
       return s;
     }
@@ -284,16 +260,7 @@ static T_stmList getNext()
     }
   }
 }
-         /* traceSchedule : Tree.stm list list * Tree.label -> Tree.stm list
-            From a list of basic blocks satisfying properties 1-6,
-            along with an "exit" label,
-	    produce a list of stms such that:
-	      1. and 2. as above;
-              7. Every CJUMP(_,t,f) is immediately followed by LABEL f.
-            The blocks are reordered to satisfy property 7; also
-	    in this reordering as many JUMP(T.NAME(lab)) statements
-            as possible are eliminated by falling through into T.LABEL(lab).
-         */
+
 T_stmList C_traceSchedule(struct C_block b)
 { C_stmListList sList;
   block_env = S_empty();
@@ -305,4 +272,3 @@ T_stmList C_traceSchedule(struct C_block b)
 
   return getNext();
 }
-

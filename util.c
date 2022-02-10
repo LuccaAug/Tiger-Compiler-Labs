@@ -1,5 +1,5 @@
 /*
- * util.c - commonly used utility functions.
+ * util.c - Funções comumente usadas
  */
 
 #include <stdio.h>
@@ -51,12 +51,12 @@ U_boolList U_BoolList(bool head, U_boolList tail)
 string String_format(const char *s, ...)
 {
 	char buffer[BUFSIZE], *result = NULL;
-	const char *p = s; /* cursor pointer */
-	const char *str = NULL; /* pointer to variable argument strings */
-	int len = 0; /* size of result */
-	int i = 0; /* size of buffer */
-	int n = 0; /* length of variable argument strings */
-	bool isDigit = FALSE; /* needed so we can free memory allocated to string */
+	const char *p = s;
+	const char *str = NULL;
+	int len = 0;
+	int i = 0;
+	int n = 0;
+	bool isDigit = FALSE;
 	va_list ap;
 	va_start(ap, s);
 	for (; *p; p++) {
@@ -70,7 +70,7 @@ string String_format(const char *s, ...)
 					isDigit = TRUE;
 					break;
 			default:
-					assert(0); /* Invalid format specifier */
+					assert(0);
 			}
 			n = strlen(str);
 		} else {
@@ -97,7 +97,6 @@ string String_format(const char *s, ...)
 		result = checked_realloc(result, sizeof(*result) * (len + i + 1));
 		if (len > 0) strncat(result, buffer, i);
 		else strncpy(result, buffer, i);
-		/* can forget about i and len here, since we are exiting */
 	}
 	va_end(ap);
 	return result;
@@ -113,46 +112,31 @@ int needStaticLink(char *name) {
 }
 
 string String_toPut(char *s) {
-
   int len = strlen(s);
-
   char *ret = malloc(2*len+1);
-
   int i = 0, p = 0;
 
   for (i=0; i<len; i++) {
 
     if (s[i]!='\n' && s[i]!='\t') {
-
       ret[p]=s[i];
-
       p++;
-
     }
 
     else if (s[i]=='\n') {
-
       ret[p]='\\';
-
       ret[p+1]='n';
-
       p+=2;
-
     }
 
     else {
-
       ret[p]='\\';
-
       ret[p+1]='t';
-
       p+=2;
-
     }
 
   }
 
   ret[p]='\0';
-
   return ret;
 }

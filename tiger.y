@@ -6,7 +6,7 @@
 #include "errormsg.h"
 #include "absyn.h"
 
-int yylex(void); /* function prototype */
+int yylex(void);
 
 A_exp absyn_root;
 
@@ -251,12 +251,3 @@ fundec:     FUNCTION ID LPAREN fieldList RPAREN EQ exp
 arrayExp:   ID LBRACK exp RBRACK OF exp { $$ = A_ArrayExp(EM_tokPos, S_Symbol($1), $3, $6); }
     ;
 
-
-
-
-
-
-
-
-
-	

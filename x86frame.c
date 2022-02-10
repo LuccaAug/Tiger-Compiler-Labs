@@ -8,7 +8,6 @@
 #include "tree.h"
 #include "frame.h"
 
-/*Lab5: Your implementation here.*/
 const int F_wordSize = 4;
 const int F_MAX_REG = 6;
 static Temp_temp ebp = NULL, esp = NULL, eax = NULL, ebx = NULL, 

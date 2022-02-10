@@ -1,6 +1,3 @@
-
-/*Lab5: This header file is not complete. Please finish it with more definition.*/
-
 #ifndef FRAME_H
 #define FRAME_H
 
@@ -14,7 +11,6 @@ typedef struct F_accessList_ *F_accessList;
 struct F_accessList_ {F_access head; F_accessList tail;};
 F_accessList F_AccessList(F_access head, F_accessList tail);
 
-/* declaration for fragments */
 typedef struct F_frag_ *F_frag;
 struct F_frag_ {
             enum {F_stringFrag, F_procFrag} kind;
@@ -71,7 +67,5 @@ T_exp F_externalCall(string s, T_expList args);
 F_frag F_string(Temp_label lab, string str);
 F_frag F_newProcFrag(T_stm body, F_frame frame);
 T_stm F_procEntryExit1(F_frame frame, T_stm stm);
-// AS_instrList F_procEntryExit2(AS_instrList body);
-// void F_procEntryExit3(AS_instrList *body);
 
 #endif

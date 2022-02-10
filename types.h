@@ -1,11 +1,5 @@
 #ifndef TYPES_H
 #define TYPES_H
-/*
- * types.h - 
- *
- * All types and functions declared in this header file begin with "Ty_"
- * Linked list types end with "..list"
- */
 
 typedef struct Ty_ty_ *Ty_ty;
 typedef struct Ty_tyList_ *Ty_tyList;

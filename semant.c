@@ -8,7 +8,6 @@
 #include "env.h"
 #include "semant.h"
 
-/*Lab4: Your implementation of lab4*/
 int loop;
 S_symbol loopvar;
 
@@ -53,7 +52,6 @@ static A_exp transform(A_exp forExp) {
 struct expty transVar(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_var v) {
     switch (v->kind) {
         case A_simpleVar: {
-            // printf("%s\n", S_name(v->u.simple));
             E_enventry x = S_look(venv, v->u.simple);
             if (x && x->kind == E_varEntry) {
             	Tr_exp tr = Tr_simpleVar(x->u.var.access, level);
@@ -103,33 +101,20 @@ static count = 0;
 struct expty transExp(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_exp e) {
     switch (e->kind) {
         case A_varExp: {
-        	// printf("A_varExp");
-        	// if (e->u.var->kind == A_simpleVar) 
-        	// 	printf(" %s\n", S_name(e->u.var->u.simple));
-        	// else
-        	// 	printf("\n");
             return transVar(level, exp, venv, tenv, e->u.var); 
         }
         case A_nilExp: {
-        	// printf("A_nilExp\n");
             return expTy(Tr_nilExp(), Ty_Nil());
         }
         case A_intExp: {
-        	// printf("A_initExp\n");
             return expTy(Tr_intExp(e->u.intt), Ty_Int());
         }
         case A_stringExp: {
-        	// printf("A_stringExp %s\n", e->u.stringg);
             return expTy(Tr_stringExp(e->u.stringg), Ty_String());
         }
         case A_callExp: {
             E_enventry f = S_look(venv, e->u.call.func);
-            // A_expList args = NULL;
 			Tr_expList argList = NULL, cur = NULL;
-			// for (args = e->u.call.args; args; args = args->tail) {
-			// 	struct expty arg = transExp(level, exp, venv, tenv, args->head);
-			// 	Tr_expList_prepend(arg.exp, &argList);			
-			// }
             if (f && f->kind == E_funEntry) {
                 A_expList arg = e->u.call.args;
                 Ty_tyList formal = f->u.fun.formals;
@@ -139,7 +124,6 @@ struct expty transExp(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_
                         break;
                     }
                     struct expty x = transExp(level, exp, venv, tenv, arg->head);
-                    // Tr_expList_prepend(x.exp, &argList);
                     if (!argList) {
                         argList = Tr_ExpList(x.exp, NULL);
                         cur = argList;
@@ -148,7 +132,6 @@ struct expty transExp(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_
                         cur = cur->tail;
                     }
                     if (actual_ty(x.ty)->kind != actual_ty(formal->head)->kind) {
-                        // printf("%d %d\n", x.ty->kind, actual_ty(formal->head)->kind);
                         EM_error(arg->head->pos, "para type mismatch");
                     }
                     arg = arg->tail;
@@ -164,7 +147,6 @@ struct expty transExp(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_
             }
         }
         case A_opExp: {
-        	// printf("A_opExp\n");
             A_oper op = e->u.op.oper;
             struct expty left = transExp(level, exp, venv, tenv, e->u.op.left);
             struct expty right = transExp(level, exp, venv, tenv, e->u.op.right);
@@ -233,7 +215,6 @@ struct expty transExp(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_
             }
         }
         case A_recordExp: {
-        	// printf("A_recordExp\n");
             Ty_ty x = actual_ty(S_look(tenv, e->u.record.typ));
             if (x && x->kind == Ty_record) {
             	int n = 0;
@@ -263,12 +244,10 @@ struct expty transExp(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_
                 return expTy(Tr_recordExp(n, l), x);
             } else 
                 EM_error(e->pos, "undefined type %s", S_name(e->u.record.typ));
-            // if (!x) return expTy(Tr_noExp(), Ty_Record(NULL));
             something_wrong:
             return expTy(NULL, Ty_Record(NULL));
         }
         case A_seqExp: {
-        	// printf("A_seqExp\n");
         	Tr_expList l = NULL;
             A_expList list = e->u.seq;
             struct expty result;
@@ -282,7 +261,6 @@ struct expty transExp(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_
             return expTy(Tr_seqExp(l), result.ty);
         }
         case A_assignExp: {
-        	// printf("A_assignExp\n");
             struct expty lvalue = transVar(level, exp, venv, tenv, e->u.assign.var);
             struct expty rvalue = transExp(level, exp, venv, tenv, e->u.assign.exp);
             if (lvalue.ty->kind != rvalue.ty->kind && rvalue.ty->kind !=Ty_nil) 
@@ -293,7 +271,6 @@ struct expty transExp(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_
             return expTy(Tr_assignExp(lvalue.exp, rvalue.exp), Ty_Void());
         }
         case A_ifExp: {
-        	// printf("A_ifExp\n");
             struct expty exp1 = transExp(level, exp, venv, tenv, e->u.iff.test);
             struct expty exp2 = transExp(level, exp, venv, tenv, e->u.iff.then);
             struct expty exp3 = (e->u.iff.elsee) ? 
@@ -317,7 +294,6 @@ struct expty transExp(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_
             return expTy(Tr_ifExp(exp1.exp, exp2.exp, exp3.exp), Ty_Void());
         }
         case A_whileExp: {
-        	// printf("A_whileExp\n");
             loop++;
             struct expty exp1 = transExp(level, exp, venv, tenv, e->u.whilee.test);
             Tr_exp done = Tr_doneExp();
@@ -335,7 +311,6 @@ struct expty transExp(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_
             return expTy(result.exp, Ty_Void());
         }
         case A_breakExp: {
-        	// printf("A_breakExp\n");
             if (!loop)
                 EM_error(e->pos, "break alone");
             if (!exp) 
@@ -344,7 +319,6 @@ struct expty transExp(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_
             	return expTy(Tr_breakExp(exp), Ty_Void());
         }
         case A_letExp: {
-        	// printf("A_letExp\n");
         	Tr_expList l = NULL;
             S_beginScope(tenv);
             S_beginScope(venv);
@@ -395,7 +369,6 @@ struct expty transExp(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_
 
                                 param = param->tail;
                             }
-
 
                             Ty_ty result = Ty_Void();
                             if (x->result) {

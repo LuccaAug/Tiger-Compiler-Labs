@@ -1,6 +1,6 @@
 /*
- * color.h - Data structures and function prototypes for coloring algorithm
- *             to determine register allocation.
+ * color.h - Estruturas de dados e protótipos para o 
+ * algoritmo de coloração determinar o registrador de alocação
  */
 #ifndef COLOR_H
 #define COLOR_H

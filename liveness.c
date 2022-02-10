@@ -25,7 +25,6 @@ Live_moveList Live_MoveList(G_node src, G_node dst, Live_moveList tail) {
 
 
 Temp_temp Live_gtemp(G_node n) {
-	//your code here.
 	return G_nodeInfo(n);
 }
 
@@ -40,12 +39,10 @@ Temp_tempList minus(Temp_tempList a, Temp_tempList b) {
 			}
 		if (!found) r = Temp_TempList(i->head, r);
 	}
-	// printf("liveness.c [minus] a=%d b=%d r=%d\n", a, b, r);
 	return r;
 }
 
 Temp_tempList plus(Temp_tempList a, Temp_tempList b) {
-	// printf("\nliveness.c [plus] a=%d b=%d\n", a, b);
 	Temp_tempList i, j, r = NULL;
 	for (i = a; i; i = i->tail) 
 		r = Temp_TempList(i->head, r);
@@ -137,32 +134,6 @@ static void Liveness_Analysis(G_graph flow) {
 			G_node n = i->head;
 			Temp_tempList def = FG_def(n), use = FG_use(n),
 						  live_in = G_look(in, n), live_out = G_look(out, n);
-			// {// print info
-			// 	AS_instr inst = G_nodeInfo(n);
-			// 	if (inst->kind == I_OPER)
-			// 		printf("\n\nassem:%s", inst->u.OPER.assem);
-			// 	else if (inst->kind == I_LABEL)
-			// 		printf("\n\nassem:%s", inst->u.LABEL.assem);
-			// 	else
-			// 		printf("\n\nassem:%s", inst->u.MOVE.assem);
-
-			// 	printf("def:");
-			// 	Temp_tempList h = def;
-			// 	for (; h; h = h->tail)
-			// 		printf("%d, ", h->head->num);
-			// 	printf("\nuse:");
-			// 	h = use;
-			// 	for (; h; h = h->tail)
-			// 		printf("%d, ", h->head->num);
-			// 	printf("\nlive_in:");
-			// 	h = live_in;
-			// 	for (; h; h = h->tail)
-			// 		printf("%d, ", h->head->num);
-			// 	printf("\nlive_out:");
-			// 	h = live_out;
-			// 	for (; h; h = h->tail)
-			// 		printf("%d, ", h->head->num);
-			// }
 			Temp_tempList tmp = minus(live_out, def);
 			Temp_tempList new_in = plus(use, tmp), new_out = NULL;
 			G_nodeList succ = G_succ(n);
@@ -170,17 +141,6 @@ static void Liveness_Analysis(G_graph flow) {
 				tmp = G_look(in, succ->head);
 				new_out = plus(new_out, tmp);
 			}
-					
-			// {
-			// 	printf("\nnew_in:");
-			// 	Temp_tempList h = new_in;
-			// 	for (; h; h = h->tail)
-			// 		printf("%d, ", h->head->num);
-			// 	printf("\nnew_out:");
-			// 	h = new_out;
-			// 	for (; h; h = h->tail)
-			// 		printf("%d, ", h->head->num);
-			// }
 
 			G_enter(in, n, new_in);
 			G_enter(out, n, new_out);
@@ -239,17 +199,6 @@ static G_graph Conflict_Analysis(G_graph flow) {
 			}
 		}
 	}
-	// nlist = G_nodes(g);
-	// for (; nlist; nlist = nlist->tail) {
-	// 	Temp_temp t = G_nodeInfo(nlist->head);
-	// 	printf("\n%d:\n\t", t->num);
-	// 	G_nodeList adj = G_adj(nlist->head);
-	// 	for (; adj; adj = adj->tail) {
-	// 		t = G_nodeInfo(adj->head);
-	// 		printf("%d, ", t->num);
-	// 	}
-	// }
-
 	return g;
 }
 
@@ -271,12 +220,10 @@ static Live_moveList getMoveList(G_graph flow) {
 }
 
 struct Live_graph Live_liveness(G_graph flow) {
-	//your code here.
 	struct Live_graph lg;
 	Liveness_Analysis(flow);
 	lg.cg = Conflict_Analysis(flow);
 	lg.fg = flow;
 	lg.moves = getMoveList(flow);
-	// G_show(stdout, G_nodes(lg.cg), NULL);
 	return lg;
 }

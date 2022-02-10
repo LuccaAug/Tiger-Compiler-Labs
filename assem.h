@@ -1,6 +1,5 @@
 /*
- * assem.h - Function prototypes to translate to Assem-instructions
- *             using Maximal Munch.
+ * assem.h - Protótipo das funções para traduzir para instruções assembly
  */
 #ifndef ASSEM_H
 #define ASSEM_H

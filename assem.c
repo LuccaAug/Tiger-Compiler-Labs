@@ -1,11 +1,10 @@
 /*
- * mipscodegen.c - Functions to translate to Assem-instructions for
- *             the Jouette assembly language using Maximal Munch.
+ * assem.c - Funções para traduzir para instruções assembly
  */
 
 #include <stdio.h>
-#include <stdlib.h> /* for atoi */
-#include <string.h> /* for strcpy */
+#include <stdlib.h>
+#include <string.h>
 #include "util.h"
 #include "symbol.h"
 #include "absyn.h"
@@ -16,9 +15,9 @@
 #include "errormsg.h"
 
 AS_targets AS_Targets(Temp_labelList labels) {
-   AS_targets p = checked_malloc (sizeof *p);
-   p->labels=labels;
-   return p;
+  AS_targets p = checked_malloc (sizeof *p);
+  p->labels=labels;
+  return p;
 }
 
 AS_instr AS_Oper(string a, Temp_tempList d, Temp_tempList s, AS_targets j) {
@@ -54,7 +53,6 @@ AS_instrList AS_InstrList(AS_instr head, AS_instrList tail)
  return p;
 }
 
-/* put list b at the end of list a */
 AS_instrList AS_splice(AS_instrList a, AS_instrList b) {
   AS_instrList p;
   if (a==NULL) return b;
@@ -75,46 +73,46 @@ static Temp_label nthLabel(Temp_labelList list, int i) {
   else return nthLabel(list->tail,i-1);
 }
 
-
-/* first param is string created by this function by reading 'assem' string
- * and replacing `d `s and `j stuff.
- * Last param is function to use to determine what to do with each temp.
- */
 static void format(char *result, string assem, 
-		   Temp_tempList dst, Temp_tempList src,
-		   AS_targets jumps, Temp_map m)
+		  Temp_tempList dst, Temp_tempList src,
+		  AS_targets jumps, Temp_map m)
 {
 
   fprintf(stdout, "a format: assem=%s, dst=%p, src=%p\n", assem, dst, src);
   char *p;
-  int i = 0; /* offset to result string */
+  int i = 0;
   for(p = assem; p && *p != '\0'; p++){
     if (*p == '`') {
       switch(*(++p)) {
-      case 's': {int n = atoi(++p);
-		 string s = Temp_look(m, nthTemp(src,n));
-		 strcpy(result+i, s);
-		 i += strlen(s);
-	       }
-	break;
-      case 'd': {int n = atoi(++p);
-		 string s = Temp_look(m, nthTemp(dst,n));
-		 strcpy(result+i, s);
-		 i += strlen(s);
-	       }
-	break;
-      case 'j': assert(jumps); 
-	       {int n = atoi(++p);
-		 string s = Temp_labelstring(nthLabel(jumps->labels,n));
-		 strcpy(result+i, s);
-		 i += strlen(s);
-	       }
-	break;
-      case '`': result[i] = '`'; i++; 
-	break;
-      default: assert(0);
-      }}
-    else {result[i] = *p; i++; }}
+        case 's': {int n = atoi(++p);
+          string s = Temp_look(m, nthTemp(src,n));
+          strcpy(result+i, s);
+          i += strlen(s);
+            }
+          break;
+        case 'd': {int n = atoi(++p);
+          string s = Temp_look(m, nthTemp(dst,n));
+          strcpy(result+i, s);
+          i += strlen(s);
+            }
+          break;
+        case 'j': assert(jumps); 
+          int n = atoi(++p);
+          string s = Temp_labelstring(nthLabel(jumps->labels,n));
+          strcpy(result+i, s);
+          i += strlen(s);
+          break;
+        case '`': 
+          result[i] = '`'; i++; 
+          break;
+        default: 
+          assert(0);
+    }}
+    else {
+      result[i] = *p;
+      i++; 
+    }
+  }
   result[i] = '\0';
   fprintf(stdout, "result=%s\n", result);
 }
@@ -122,7 +120,7 @@ static void format(char *result, string assem,
 
 void AS_print(FILE *out, AS_instr i, Temp_map m)
 {
-  char r[200]; /* result */
+  char r[200];
   switch (i->kind) {
   case I_OPER:
     format(r, i->u.OPER.assem, i->u.OPER.dst, i->u.OPER.src, i->u.OPER.jumps, m);
@@ -131,7 +129,6 @@ void AS_print(FILE *out, AS_instr i, Temp_map m)
   case I_LABEL:
     format(r, i->u.LABEL.assem, NULL, NULL, NULL, m); 
     fprintf(out, "%s", r); 
-    /* i->u.LABEL->label); */
     break;
   case I_MOVE:
     format(r, i->u.MOVE.assem, i->u.MOVE.dst, i->u.MOVE.src, NULL, m);
@@ -149,14 +146,11 @@ static int removable(AS_instr i, Temp_map m) {
   return 0;
 }
 
-/* c should be COL_color; temporarily it is not */
 void AS_printInstrList (FILE *out, AS_instrList iList, Temp_map m)
 {
   for (; iList; iList=iList->tail) {
-    if (removable(iList->head, m)) {
-      // AS_print(out, iList->head, m);
+    if (removable(iList->head, m))
       continue;
-    }
     AS_print(out, iList->head, m);
   }
   fprintf(out, "\n");
@@ -164,6 +158,6 @@ void AS_printInstrList (FILE *out, AS_instrList iList, Temp_map m)
 
 AS_proc AS_Proc(string p, AS_instrList b, string e)
 {AS_proc proc = checked_malloc(sizeof(*proc));
- proc->prolog=p; proc->body=b; proc->epilog=e;
- return proc;
+  proc->prolog=p; proc->body=b; proc->epilog=e;
+  return proc;
 }

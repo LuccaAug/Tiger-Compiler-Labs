@@ -5,8 +5,6 @@
 #include "translate.h"
 #include "types.h"
 
-// typedef void *Tr_exp; // avoid IR
-
 struct expty {Tr_exp exp; Ty_ty ty;};
 
 struct expty expTy(Tr_exp exp, Ty_ty ty);

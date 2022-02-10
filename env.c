@@ -4,7 +4,6 @@
 #include "types.h"
 #include "env.h"
 
-/*Lab4: Your implementation of lab4*/
 E_enventry E_VarEntry(Tr_access access, Ty_ty ty) {
     E_enventry e = checked_malloc(sizeof(*e));
     e->kind = E_varEntry; 

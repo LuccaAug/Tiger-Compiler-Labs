@@ -1,4 +1,3 @@
-//#undef __STDC__
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -53,7 +52,7 @@ int main()
    {consts[i].length=1;
     consts[i].chars[0]=i;
    }
- return tigermain(0 /* static link */);
+ return tigermain(0);
 }
 
 int ord(struct string *s)

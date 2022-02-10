@@ -76,17 +76,14 @@ static int inAdjSet(G_node u, G_node v) {
 }
 
 static void addToAdjSet(G_node u, G_node v) {
-    // add (u, v)
     G_nodeList nlist = G_look(adjSet, u);
     nlist = G_NodeList(v, nlist);
     G_enter(adjSet, u, nlist);
-    // add (v, u)
     nlist = G_look(adjSet, v);
     nlist = G_NodeList(u, nlist);
     G_enter(adjSet, v, nlist);
 }
 
-// add v to adjList[u]
 static void addToAdjList(G_node u, G_node v) { 
     G_nodeList nlist = G_look(adjList, u);
     nlist = G_NodeList(v, nlist);
@@ -144,9 +141,6 @@ static void increase_move(G_node n) {
     G_enter(t_move, n, c);
 }
 
-//1.build temp-to-node map
-//2.clear every node's degree to 0
-//3.initialize precolor list
 static void makeTempMap(G_graph cg, Temp_map initial) {
     TAB_table tab = initial->tab;
     G_nodeList nlist = G_nodes(cg);
@@ -158,7 +152,6 @@ static void makeTempMap(G_graph cg, Temp_map initial) {
         string r = Temp_look(initial, t);
         if (r) {
             precolored = G_NodeList(n, precolored);
-            // printf("precolored %s %d\n", r, t->num);
             if (!strcmp(r, "%eax")) ColorIt(n, 0);
             else if (!strcmp(r, "%ebx")) ColorIt(n, 1);
             else if (!strcmp(r, "%ecx")) ColorIt(n, 2);
@@ -237,7 +230,6 @@ static printAdjSet(G_graph g) {
 }
 
 struct COL_result COL_color(G_graph fg, Temp_map initial, Temp_tempList regs) {
-    //your code here.
     struct COL_result ret;
 
     struct Live_graph lg = Live_liveness(fg);
@@ -314,7 +306,6 @@ static void Build(struct Live_graph lg, Temp_map initial) {
         for (; vlist; vlist = vlist->tail) 
             AddEdge(u, vlist->head);
     }
-    // printAdjSet(cg);
 }
 
 static void AddEdge(G_node u, G_node v) {
@@ -338,8 +329,6 @@ static void MakeWorklist(G_graph g, Temp_tempList r) {
         G_node n = nlist->head;
         Temp_temp t = G_nodeInfo(n);
         int d = degree(n);
-        // printf("node:%d degree:%d MoveRelated:%d\n", 
-        //     t->num, d, MoveRelated(n));
         if (d >= k) 
         	addNode(&spillWorklist, n);
         else if (MoveRelated(n))
@@ -462,19 +451,16 @@ static void Coalesce() {
     else
         u = x, v = y;
     if (u == v) {
-    	//already coalesced
         addMove(&coalescedMoves, m);
         AddWorkList(u);
     }
     else if (G_inNodeList(v, precolored) || inAdjSet(u, v) || ebpRalated(u, v)) {
-    	//both are precolored or conflicted
         addMove(&constrainedMoves, m);
         AddWorkList(u);
         AddWorkList(v);
     }
     else if ((G_inNodeList(u, precolored) && Safe(u, v)) ||
             (!G_inNodeList(u, precolored) && Conservative(u, v))) {
-    	//it's OK to coalesce u and v
         Temp_temp a = G_nodeInfo(u), b = G_nodeInfo(v);
         printf("it's ok to coalesce %d %d\n", a->num, b->num);
         addMove(&coalescedMoves, m);

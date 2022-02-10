@@ -1,6 +1,5 @@
 /*
- * graph.c - Functions to manipulate and create control flow and
- *           interference graphs.
+ * graph.c - Funções para manipular e criar o controle de fluxo do grafo
  */
 
 #include <stdio.h>
@@ -42,7 +41,6 @@ G_nodeList G_NodeList(G_node head, G_nodeList tail)
  return n;
 }
 
-/* generic creation of G_node */
 G_node G_Node(G_graph g, void *info)
 {G_node n = (G_node)checked_malloc(sizeof *n);
  G_nodeList p = G_NodeList(n, NULL);
@@ -66,7 +64,6 @@ G_nodeList G_nodes(G_graph g)
   return g->mynodes;
 } 
 
-/* return true if a is in l list */
 bool G_inNodeList(G_node a, G_nodeList l) {
   G_nodeList p;
   for(p=l; p!=NULL; p=p->tail)
@@ -94,9 +91,6 @@ void G_rmEdge(G_node from, G_node to) {
   from->succs=delete(to,from->succs);
 }
 
- /**
-  * Print a human-readable dump for debugging.
-  */
 void G_show(FILE *out, G_nodeList p, void showInfo(void *)) {
   for (; p!=NULL; p=p->tail) {
     G_node n = p->head;
@@ -119,7 +113,6 @@ bool G_goesTo(G_node from, G_node n) {
   return G_inNodeList(n, G_succ(from));
 }
 
-/* return length of predecessor list for node n */
 static int inDegree(G_node n)
 { int deg = 0;
   G_nodeList p;
@@ -127,7 +120,6 @@ static int inDegree(G_node n)
   return deg;
 }
 
-/* return length of successor list for node n */
 static int outDegree(G_node n)
 { int deg = 0;
   G_nodeList p; 
@@ -137,19 +129,14 @@ static int outDegree(G_node n)
 
 int G_degree(G_node n) {return inDegree(n)+outDegree(n);}
 
-/* put list b at the back of list a and return the concatenated list */
 static G_nodeList cat(G_nodeList a, G_nodeList b) {
   if (a==NULL) return b;
   else return G_NodeList(a->head, cat(a->tail, b));
 }
 
-/* create the adjacency list for node n by combining the successor and 
- * predecessor lists of node n */
 G_nodeList G_adj(G_node n) {return cat(G_succ(n), G_pred(n));}
 
 void *G_nodeInfo(G_node n) {return n->info;}
-
-/* G_node table functions */
 
 G_table G_empty(void) {
   return TAB_empty();

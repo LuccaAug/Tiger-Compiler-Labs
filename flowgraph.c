@@ -13,7 +13,6 @@
 
 
 Temp_tempList FG_def(G_node n) {
-	//your code here.
     AS_instr x = G_nodeInfo(n);
     switch (x->kind) {
         case I_OPER:
@@ -29,7 +28,6 @@ Temp_tempList FG_def(G_node n) {
 }
 
 Temp_tempList FG_use(G_node n) {
-	//your code here.
     AS_instr x = G_nodeInfo(n);
     switch (x->kind) {
         case I_OPER:
@@ -45,13 +43,11 @@ Temp_tempList FG_use(G_node n) {
 }
 
 bool FG_isMove(G_node n) {
-	//your code here.
     AS_instr x = G_nodeInfo(n);
 	return x && x->kind == I_MOVE;
 }
 
 G_graph FG_AssemFlowGraph(AS_instrList il, F_frame f) {
-	//your code here.
     G_graph g = G_Graph();
     G_table t = G_empty();
     G_nodeList nlist = NULL;
