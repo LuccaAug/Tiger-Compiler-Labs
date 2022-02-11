@@ -1,5 +1,5 @@
 /*
- * assem.h - Protótipo das funções para traduzir para instruções assembly
+ * Protótipo das funções para traduzir para instruções assembly
  */
 #ifndef ASSEM_H
 #define ASSEM_H

@@ -7,6 +7,7 @@
 #include "absin.h"
 #include <stdlib.h>
 #include <stdio.h>
+
 A_var A_SimpleVar(A_pos pos, S_symbol sym)
 {A_var p = checked_malloc(sizeof(*p));
 	p->kind = A_simpleVar;

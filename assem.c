@@ -1,5 +1,5 @@
 /*
- * assem.c - Funções para traduzir para instruções assembly
+ * Funções para traduzir para instruções assembly
  */
 
 #include <stdio.h>

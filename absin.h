@@ -3,8 +3,8 @@
 /*
  * Header da Sintaxe Abstrata
  *
- * Todos os tipos e funções declaradas neste cabeçalho começam com A_
- * Tipos de lista encadeada terminam com "...List"
+ * Todos os tipos e funções declaradas neste cabeçalho começam com "A_"
+ * Tipos de lista encadeada terminam com "List"
  */
 
 typedef int A_pos;
