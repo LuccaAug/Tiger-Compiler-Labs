@@ -1,10 +1,10 @@
 /*
-* absyn.c - Funções Abstratas de Sintaxe. 
+* Funções Abstratas de Sintaxe
 */
 
 #include "util.h"
 #include "symbol.h"
-#include "absyn.h"
+#include "absin.h"
 #include <stdlib.h>
 #include <stdio.h>
 A_var A_SimpleVar(A_pos pos, S_symbol sym)

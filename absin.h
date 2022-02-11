@@ -1,7 +1,7 @@
-#ifndef ABSYN_H
-#define ABSYN_H
+#ifndef ABSIN_H
+#define ABSIN_H
 /*
- * absyn.h - Header da Sintaxe Abstrata
+ * Header da Sintaxe Abstrata
  *
  * Todos os tipos e funções declaradas neste cabeçalho começam com A_
  * Tipos de lista encadeada terminam com "...List"

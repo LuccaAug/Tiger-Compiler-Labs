@@ -2,7 +2,7 @@
 #include "util.h"
 #include "symbol.h"
 #include "types.h"
-#include "absyn.h"
+#include "absin.h"
 #include "errormsg.h"
 #include "temp.h"
 #include "tree.h"
@@ -51,24 +51,24 @@ static void doProc(FILE *out, F_frame frame, T_stm body)
 
 int main(int argc, string *argv)
 {
- A_exp absyn_root;
+ A_exp absin_root;
  S_table base_env, base_tenv;
  F_fragList frags;
  char outfile[100];
  FILE *out = stdout;
 
  if (argc==2) {
-   absyn_root = parse(argv[1]);
-   if (!absyn_root)
+   absin_root = parse(argv[1]);
+   if (!absin_root)
      return 1;
      
 #if 0
-   pr_exp(out, absyn_root, 0);
+   pr_exp(out, absin_root, 0);
    fprintf(out, "\n");
 #endif
-    Esc_findEscape(absyn_root);
+    Esc_findEscape(absin_root);
 
-    frags = SEM_transProg(absyn_root);
+    frags = SEM_transProg(absin_root);
     if (anyErrors) return 1;
 
     sprintf(outfile, "%s.s", argv[1]);

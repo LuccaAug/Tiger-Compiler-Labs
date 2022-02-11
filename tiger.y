@@ -4,11 +4,11 @@
 #include "util.h"
 #include "symbol.h" 
 #include "errormsg.h"
-#include "absyn.h"
+#include "absin.h"
 
 int yylex(void);
 
-A_exp absyn_root;
+A_exp absin_root;
 
 void yyerror(char *s)
 {
@@ -87,7 +87,7 @@ void yyerror(char *s)
 
 %%
 
-program:   exp    {absyn_root=$1;}
+program:   exp    {absin_root=$1;}
     ;
 
 exp:    varExp      { $$ = $1; }

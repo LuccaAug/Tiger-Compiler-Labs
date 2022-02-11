@@ -3,7 +3,7 @@
 
 #include "temp.h"
 #include "frame.h"
-#include "absyn.h"
+#include "absin.h"
 
 typedef struct Tr_access_ * Tr_access;
 typedef struct Tr_level_ * Tr_level;
