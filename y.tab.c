@@ -75,7 +75,7 @@
 #include "errormsg.h"
 #include "absyn.h"
 
-int yylex(void); /* function prototype */
+int yylex(void);
 
 A_exp absyn_root;
 

@@ -181,7 +181,6 @@ static void munchStm(T_stm stm) {
 		} break;
 		case T_JUMP: {
 			Temp_label label = stm->u.JUMP.jumps->head;
-			printf("%s\n", String_format("jmp %s\n", Temp_labelstring(label)));
 
 			emit(AS_Oper(String_format("jmp %s\n", Temp_labelstring(label)), 
 				NULL, NULL, AS_Targets(stm->u.JUMP.jumps)));

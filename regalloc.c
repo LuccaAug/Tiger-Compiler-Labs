@@ -46,20 +46,6 @@ static int needPut(AS_instr i, Temp_temp t) {
         return inTempList(t, i->u.MOVE.dst);
 }
 
-static void show(AS_instrList il) {
-    for (; il; il = il->tail) 
-        switch (il->head->kind) {
-            case I_MOVE:
-                printf("%s\n", il->head->u.MOVE.assem);
-                break;
-            case I_OPER:
-                printf("%s\n", il->head->u.OPER.assem);
-                break;
-            case I_LABEL:
-                printf("%s\n", il->head->u.LABEL.assem);
-        }
-}
-
 static AS_instrList RewriteProgram(AS_instrList il, Temp_tempList spill) {
     offs = TAB_empty();
     Temp_tempList s = spill;
@@ -109,10 +95,9 @@ struct RA_result RA_regAlloc(F_frame f, AS_instrList il) {
 	Temp_map initial = Temp_layerMap(Temp_empty(), F_tempMap);
 	Temp_tempList regs = F_registers();
 	struct COL_result col_result = COL_color(fg, initial, regs);
-    if (col_result.spills) {
-        printf("need rewrite1\n");
+    if (col_result.spills)
         return RA_regAlloc(f, RewriteProgram(il, col_result.spills));
-    }
+        
 	ret.coloring = col_result.coloring;
 	ret.il = il;
 

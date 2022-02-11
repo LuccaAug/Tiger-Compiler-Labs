@@ -33,11 +33,6 @@ void print(struct string *s)
  for(i=0;i<s->length;i++,p++) putchar(*p);
 }
 
-void printi(int k)
-{
-	printf("%d", k);
-}
-
 void flush()
 {
  fflush(stdout);
@@ -57,34 +52,36 @@ int main()
 
 int ord(struct string *s)
 {
- if (s->length==0) return -1;
- else return s->chars[0];
+  if (s->length == 0) 
+    return -1;
+  else 
+    return s->chars[0];
 }
 
 struct string *chr(int i)
 {
- if (i<0 || i>=256) 
-   {printf("chr(%d) out of range\n",i); exit(1);}
- return consts+i;
+  if (i<0 || i>=256) 
+    exit(1);
+  return consts+i;
 }
 
 int size(struct string *s)
 { 
- return s->length;
+  return s->length;
 }
 
 struct string *substring(struct string *s, int first, int n)
 {
- if (first<0 || first+n>s->length)
-   {printf("substring([%d],%d,%d) out of range\n",s->length,first,n);
-    exit(1);}
- if (n==1) return consts+s->chars[first];
- {struct string *t = (struct string *)malloc(sizeof(int)+n);
-  int i;
-  t->length=n;
-  for(i=0;i<n;i++) t->chars[i]=s->chars[first+i];
-  return t;
- }
+  if (first<0 || first+n>s->length)
+    exit(1);
+  if (n==1) return consts+s->chars[first];
+  {
+    struct string *t = (struct string *)malloc(sizeof(int)+n);
+    int i;
+    t->length=n;
+    for(i=0;i<n;i++) t->chars[i]=s->chars[first+i];
+    return t;
+  }
 }
 
 struct string *concat(struct string *a, struct string *b)

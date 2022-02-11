@@ -77,8 +77,6 @@ static void format(char *result, string assem,
 		  Temp_tempList dst, Temp_tempList src,
 		  AS_targets jumps, Temp_map m)
 {
-
-  fprintf(stdout, "a format: assem=%s, dst=%p, src=%p\n", assem, dst, src);
   char *p;
   int i = 0;
   for(p = assem; p && *p != '\0'; p++){
@@ -114,7 +112,6 @@ static void format(char *result, string assem,
     }
   }
   result[i] = '\0';
-  fprintf(stdout, "result=%s\n", result);
 }
 
 

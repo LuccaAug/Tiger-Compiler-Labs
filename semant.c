@@ -279,10 +279,8 @@ struct expty transExp(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_
             if (exp1.ty->kind != Ty_int)
                 EM_error(e->pos, "integer expression required ");
             if (exp3.ty->kind == Ty_void) {
-                if (exp2.ty->kind != Ty_void) {
-                    printf("%d\n", exp2.ty->kind);
+                if (exp2.ty->kind != Ty_void)
                     EM_error(e->u.iff.then->pos, "if-then exp's body must produce no value");
-                }
                 return expTy(Tr_ifExp(exp1.exp, exp2.exp, exp3.exp), Ty_Void());
             }
             if (exp2.ty->kind != exp3.ty->kind && exp3.ty->kind != Ty_nil)
@@ -424,7 +422,6 @@ struct expty transExp(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_
             return expTy(Tr_seqExp(l), body.ty);
         }
         case A_arrayExp: {
-        	// printf("A_arrayExp\n");
             Ty_ty ty = actual_ty(S_look(tenv, e->u.array.typ));
             if (!ty || ty->kind != Ty_array)
                 EM_error(e->pos, "not array type");
@@ -443,15 +440,10 @@ struct expty transExp(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_
 
 static void DebugPrintInfo(A_dec d) {
     switch (d->kind) {
-        case (A_functionDec) : {
-            printf("This is a function dec\n");
-        } break;
-        case (A_typeDec): {
-            printf("This is a function dec\n");
-        } break;
-        case (A_varDec): {
-            printf("This is a function dec\n");
-        }
+        case (A_functionDec) :
+        case (A_typeDec):
+            break;
+        case (A_varDec):
         default:
             d->u.var.escape = 1;
     }

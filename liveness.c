@@ -80,36 +80,21 @@ static int equal(Temp_tempList a, Temp_tempList b) {
 }
 
 static void watch_lg(G_graph g) {
-	printf("watch_lg:\n");
 	G_nodeList nlist = G_nodes(g);
 	for (; nlist; nlist = nlist->tail) {
 		G_node n = nlist->head;
 		AS_instr inst = G_nodeInfo(n);
 		Temp_tempList def = FG_def(n), use = FG_use(n),
 					  live_in = G_look(in, n), live_out = G_look(out, n);
-		if (inst->kind == I_OPER)
-			printf("\n\nassem:%s", inst->u.OPER.assem);
-		else if (inst->kind == I_LABEL)
-			printf("\n\nassem:%s", inst->u.LABEL.assem);
-		else
-			printf("\n\nassem:%s", inst->u.MOVE.assem);
 
-		printf("def:");
 		Temp_tempList h = def;
-		for (; h; h = h->tail)
-			printf("%d, ", h->head->num);
-		printf("\nuse:");
+		for (; h; h = h->tail);
 		h = use;
-		for (; h; h = h->tail)
-			printf("%d, ", h->head->num);
-		printf("\nlive_in:");
+		for (; h; h = h->tail);
 		h = live_in;
-		for (; h; h = h->tail)
-			printf("%d, ", h->head->num);
-		printf("\nlive_out:");
+		for (; h; h = h->tail);
 		h = live_out;
-		for (; h; h = h->tail)
-			printf("%d, ", h->head->num);
+		for (; h; h = h->tail);
 	}
 }
 
