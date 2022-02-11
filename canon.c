@@ -1,5 +1,5 @@
 /*
- * canon.c - Functions to convert the IR trees into basic blocks and traces.
+ * Functions to convert the IR trees into basic blocks and traces.
  */
 #include <stdio.h>
 #include "util.h"

@@ -1,5 +1,5 @@
 /*
- * util.c - Funções comumente usadas
+ * Funções comumente usadas
  */
 
 #include <stdio.h>

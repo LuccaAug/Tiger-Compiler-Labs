@@ -1,5 +1,5 @@
 /*
- * tree.h - Definição das representações intermediárias das árvores
+ * Definição das representações intermediárias das árvores
  */
 #ifndef TREE_H
 #define TREE_H

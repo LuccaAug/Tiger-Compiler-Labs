@@ -19,10 +19,7 @@ void adjust(void)
     EM_tokPos = charPos;
     charPos += yyleng;
 }
-/*
-* Please don't modify the lines above.
-* You can add C declarations of your own below.
-*/
+
 int nest_cmt_cnt = 0;
 
 #define MAXLEN 512
@@ -30,16 +27,10 @@ char buf[MAXLEN];
 int str_pos = 0;
 
 %}
-  /* You can add lex definitions here. */
 %x COMMENTS STRINGS
 
 %%
-  /*
-  * Below are some examples, which you can wipe out
-  * and write reguler expressions and actions of your own.
-  */
 
-  /* Reserved words. */
 while       {adjust(); return WHILE;}
 for         {adjust(); return FOR;}
 to          {adjust(); return TO;}
@@ -57,7 +48,7 @@ else        {adjust(); return ELSE;}
 do          {adjust(); return DO;}
 of          {adjust(); return OF;}
 nil         {adjust(); return NIL;}
-  /* Punctuation symbol */
+
 ","         {adjust(); return COMMA;}
 ":"         {adjust(); return COLON;}
 ";"         {adjust(); return SEMICOLON;}
@@ -81,14 +72,13 @@ nil         {adjust(); return NIL;}
 "&"         {adjust(); return AND;}
 "|"         {adjust(); return OR;}
 ":="        {adjust(); return ASSIGN;}
-  /* White space */
+
 [ \t]       {adjust();}
 [\r\n]|[\n\r]|[\r]|[\n]	        {adjust(); EM_newline();}
 
-  /* Identifiers EM_error(EM_tokPos, yylval.sval);  */
+
 [a-zA-Z]+[a-zA-Z0-9_]*  {adjust(); yylval.sval = String(yytext); return ID;}
 
-  /* Comments */
 "/*"        {adjust(); nest_cmt_cnt++; BEGIN(COMMENTS);}
 "*/"        {EM_error(EM_tokPos, "ERROR: Unopened comment."); yyterminate();}
 
@@ -100,10 +90,8 @@ nil         {adjust(); return NIL;}
     .       {adjust();}
 }
 
-  /* Integer literal */
 [0-9]+      {adjust(); yylval.ival = atoi(yytext); return INT;}
 
-  /* String literal */
 \"          {adjust(); bzero(buf, MAXLEN); str_pos = EM_tokPos; BEGIN(STRINGS);}
 
 <STRINGS>{
@@ -114,5 +102,4 @@ nil         {adjust(); return NIL;}
     .       {adjust(); strcat(buf, yytext);}
 }
 
-  /* Other cases are all illegal */
 .	        {adjust(); EM_error(EM_tokPos, "ERROR: Illegal input.");}

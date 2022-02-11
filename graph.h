@@ -1,5 +1,5 @@
 /*
- * graph.h - Tipo abstrato de dados que representam um grafo dirigido
+ * Tipo abstrato de dados que representam um grafo dirigido
  */
 
 typedef struct G_graph_ *G_graph;

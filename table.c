@@ -1,5 +1,5 @@
 /*
- * table.c - Funções para manipular a tabela Hash
+ * Funções para manipular a tabela Hash
  */
 
 #include <stdio.h>

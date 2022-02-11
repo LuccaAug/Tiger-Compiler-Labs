@@ -1,5 +1,5 @@
 /*
- * graph.c - Funções para manipular e criar o controle de fluxo do grafo
+ * Funções para manipular e criar o controle de fluxo do grafo
  */
 
 #include <stdio.h>

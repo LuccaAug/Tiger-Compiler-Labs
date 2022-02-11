@@ -1,5 +1,5 @@
 /*
- * prabsyn.c - Printa as estruturas de dados da sintaxe abstrata
+ * Printa as estruturas de dados da sintaxe abstrata
  */
 
 #include <stdio.h>

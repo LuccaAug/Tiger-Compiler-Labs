@@ -1,5 +1,5 @@
 /*
- * errormsg.c - Funções utilizadas para retornar os erros do compilador
+ * Funções utilizadas para retornar os erros do compilador
  *
  */
 

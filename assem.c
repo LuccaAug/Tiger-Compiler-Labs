@@ -136,7 +136,8 @@ void AS_print(FILE *out, AS_instr i, Temp_map m)
 
 static int removable(AS_instr i, Temp_map m) {
   if (i->kind != I_MOVE) return 0;
-  Temp_tempList d = i->u.MOVE.dst, s = i->u.MOVE.src;
+  Temp_tempList d = i->u.MOVE.dst;
+  s = i->u.MOVE.src;
   if (!d || !s) return 0;
   if (strstr(i->u.MOVE.assem, "(")) return 0;
   if (!strcmp(Temp_look(m, d->head), Temp_look(m, s->head))) return 1;

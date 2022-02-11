@@ -1,5 +1,5 @@
 /*
- * flowgraph.h - Protótipo das funções que representam o grafo de fluxo de controle
+ * Protótipo das funções que representam o grafo de fluxo de controle
  */
 #ifndef FLOWGRAPH_H
 #define FLOWGRAPH_H

@@ -1,5 +1,5 @@
 /*
- * printtree.c - Funções para printar as representações intermediárias das árvores
+ * Funções para printar as representações intermediárias das árvores
  */
 #include <stdio.h>
 #include "util.h"

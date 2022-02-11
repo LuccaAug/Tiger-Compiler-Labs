@@ -1,7 +1,7 @@
 #ifndef SYMBOL_H
 #define SYMBOL_H
 /*
- * symbol.h - Símbolos e a tabela de símbolos
+ * Símbolos e a tabela de símbolos
  *
  */
 

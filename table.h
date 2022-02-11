@@ -1,7 +1,7 @@
 #ifndef TABLE_H
 #define TABLE_H
 /*
- * table.h - Tabela Hash genérica
+ * Tabela Hash genérica
  */
 
 typedef struct TAB_table_ *TAB_table;

@@ -1,5 +1,5 @@
 /*
- * temp.c - Funções que criam e manipulam variáveis temporárias
+ *          Funções que criam e manipulam variáveis temporárias
  *          utilizadas na representação intermediária até a determinação
  *          das variáveis a serem alocadas nos registradores
  */
