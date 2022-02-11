@@ -96,7 +96,7 @@ struct expty transVar(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_
     }
 }
 
-static count = 0;
+static int count = 0;
 
 struct expty transExp(Tr_level level, Tr_exp exp, S_table venv, S_table tenv, A_exp e) {
     switch (e->kind) {

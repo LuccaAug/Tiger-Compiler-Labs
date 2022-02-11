@@ -60,12 +60,11 @@ Temp_tempList plus(Temp_tempList a, Temp_tempList b) {
 
 static int equal(Temp_tempList a, Temp_tempList b) {
 	Temp_tempList i, j;
-	
 	int amount_a = 0, amount_b = 0;
 	for (i = a; i; i = i->tail) amount_a++;
 	for (i = b; i; i = i->tail) amount_b++;
-	if (amount_a != amount_b) return 0;
-	
+	if (amount_a != amount_b)
+		return 0;
 	for (i = a; i; i = i->tail) {
 		int found = 0;
 		for (j = b; j; j = j->tail)
@@ -73,9 +72,9 @@ static int equal(Temp_tempList a, Temp_tempList b) {
 				found = 1;
 				break;
 			}
-		if (!found) return 0;
+		if (!found) 
+			return 0;
 	}
-
 	return 1;
 }
 
@@ -86,7 +85,6 @@ static void watch_lg(G_graph g) {
 		AS_instr inst = G_nodeInfo(n);
 		Temp_tempList def = FG_def(n), use = FG_use(n),
 					  live_in = G_look(in, n), live_out = G_look(out, n);
-
 		Temp_tempList h = def;
 		for (; h; h = h->tail);
 		h = use;
@@ -126,7 +124,6 @@ static void Liveness_Analysis(G_graph flow) {
 				tmp = G_look(in, succ->head);
 				new_out = plus(new_out, tmp);
 			}
-
 			G_enter(in, n, new_in);
 			G_enter(out, n, new_out);
 			if (!equal(new_in, live_in) || !equal(new_out, live_out)) done = 0;
@@ -177,7 +174,8 @@ static G_graph Conflict_Analysis(G_graph flow) {
 							G_node c = use ? TAB_look(regMap, use->head) : NULL;
 							if (b != c) 
 								G_addEdge(a, b);
-						} break;
+							}
+							break;
 						default:
 							assert(0);
 					}
@@ -195,7 +193,8 @@ static Live_moveList getMoveList(G_graph flow) {
 		AS_instr inst = G_nodeInfo(n);
 		if (inst->kind == I_MOVE) {
 			Temp_tempList def = FG_def(n), use = FG_use(n);
-			if (!def || !use) continue;
+			if (!def || !use) 
+				continue;
 			G_node dst = TAB_look(regMap, def);
 			G_node src = TAB_look(regMap, use);
 			r = Live_MoveList(src, dst, r);

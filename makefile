@@ -1,4 +1,4 @@
-compilador.out: main.o parse.o prabsyn.o y.tab.o lex.yy.o errormsg.o util.o table.o absyn.o symbol.o semant.o types.o env.o tree.o temp.o escape.o printtree.o frame.o translate.o canon.o codegen.o assem.o graph.o flowgraph.o liveness.o color.o regalloc.o
+a.out: main.o parse.o prabsyn.o y.tab.o lex.yy.o errormsg.o util.o table.o absyn.o symbol.o semant.o types.o env.o tree.o temp.o escape.o printtree.o frame.o translate.o canon.o codegen.o assem.o graph.o flowgraph.o liveness.o color.o regalloc.o
 	gcc -g main.o parse.o prabsyn.o y.tab.o lex.yy.o errormsg.o util.o table.o absyn.o symbol.o semant.o types.o env.o tree.o temp.o escape.o printtree.o frame.o translate.o canon.o codegen.o assem.o graph.o flowgraph.o liveness.o color.o regalloc.o
 
 main.o: main.c 
@@ -86,4 +86,7 @@ symbol.o: symbol.c symbol.h
 handin:
 	tar -czf id.name.tar.gz  absyn.[ch] errormsg.[ch] makefile gradeMe.sh parse.[ch] prabsyn.[ch] ref-6b symbol.[ch] table.[ch] testcases tiger.lex tiger.y util.[ch] env.[ch] semant.[ch] translate.[ch] *.h *.c
 clean: 
-	rm -f compilador.out *.o y.tab.c y.tab.h lex.yy.c y.output *~
+	rm -f *.o y.tab.c y.tab.h lex.yy.c y.output *~
+
+clean-all: 
+	rm -f a.out *.o y.tab.c y.tab.h lex.yy.c y.output *~
