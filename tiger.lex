@@ -83,7 +83,7 @@ nil         {adjust(); return NIL;}
 ":="        {adjust(); return ASSIGN;}
   /* White space */
 [ \t]       {adjust();}
-\n	        {adjust(); EM_newline();}
+[\r\n]|[\n\r]|[\r]|[\n]	        {adjust(); EM_newline();}
 
   /* Identifiers EM_error(EM_tokPos, yylval.sval);  */
 [a-zA-Z]+[a-zA-Z0-9_]*  {adjust(); yylval.sval = String(yytext); return ID;}
