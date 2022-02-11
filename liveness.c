@@ -124,6 +124,7 @@ static void Liveness_Analysis(G_graph flow) {
 				tmp = G_look(in, succ->head);
 				new_out = plus(new_out, tmp);
 			}
+
 			G_enter(in, n, new_in);
 			G_enter(out, n, new_out);
 			if (!equal(new_in, live_in) || !equal(new_out, live_out)) done = 0;
@@ -174,8 +175,7 @@ static G_graph Conflict_Analysis(G_graph flow) {
 							G_node c = use ? TAB_look(regMap, use->head) : NULL;
 							if (b != c) 
 								G_addEdge(a, b);
-							}
-							break;
+						} break;
 						default:
 							assert(0);
 					}
@@ -193,8 +193,7 @@ static Live_moveList getMoveList(G_graph flow) {
 		AS_instr inst = G_nodeInfo(n);
 		if (inst->kind == I_MOVE) {
 			Temp_tempList def = FG_def(n), use = FG_use(n);
-			if (!def || !use) 
-				continue;
+			if (!def || !use) continue;
 			G_node dst = TAB_look(regMap, def);
 			G_node src = TAB_look(regMap, use);
 			r = Live_MoveList(src, dst, r);
