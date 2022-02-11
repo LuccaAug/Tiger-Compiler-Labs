@@ -2,7 +2,7 @@
 #include "util.h"
 #include "table.h"
 #include "symbol.h"
-#include "absin.h"
+#include "absyn.h"
 #include "escape.h"
 
 typedef struct Esc_entry_ *Esc_entry;

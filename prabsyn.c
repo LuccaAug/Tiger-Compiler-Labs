@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include "util.h"
 #include "symbol.h"
-#include "absin.h"
+#include "absyn.h"
 #include "prabsyn.h"
 
 static void pr_var(FILE *out, A_var v, int d);

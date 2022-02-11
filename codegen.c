@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "util.h"
 #include "symbol.h"
-#include "absin.h"
+#include "absyn.h"
 #include "temp.h"
 #include "errormsg.h"
 #include "tree.h"

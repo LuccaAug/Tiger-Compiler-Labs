@@ -1,5 +1,5 @@
-#ifndef ABSIN_H
-#define ABSIN_H
+#ifndef ABSYN_H
+#define ABSYN_H
 /*
  * Header da Sintaxe Abstrata
  *

@@ -3,7 +3,7 @@
 #include "util.h"
 #include "errormsg.h"
 #include "symbol.h"
-#include "absin.h"
+#include "absyn.h"
 #include "types.h"
 #include "env.h"
 #include "semant.h"

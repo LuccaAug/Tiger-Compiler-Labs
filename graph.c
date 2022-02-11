@@ -7,7 +7,7 @@
 #include "symbol.h"
 #include "temp.h"
 #include "tree.h"
-#include "absin.h"
+#include "absyn.h"
 #include "assem.h"
 #include "frame.h"
 #include "graph.h"

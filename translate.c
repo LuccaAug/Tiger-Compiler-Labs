@@ -2,7 +2,7 @@
 #include "string.h"
 #include "util.h"
 #include "symbol.h"
-#include "absin.h"
+#include "absyn.h"
 #include "types.h"
 #include "temp.h"
 #include "tree.h"

@@ -4,7 +4,7 @@
 
 #include "util.h"
 #include "symbol.h"
-#include "absin.h"
+#include "absyn.h"
 #include <stdlib.h>
 #include <stdio.h>
 
